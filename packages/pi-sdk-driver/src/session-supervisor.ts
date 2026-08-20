@@ -169,6 +169,9 @@ interface PromptTemplateAdapter {
 
 const NEW_THREAD_PLACEHOLDER_TITLE = "New thread";
 
+/** How long cancelCurrentRun waits for the runtime to settle before giving up. */
+const ABORT_SETTLE_TIMEOUT_MS = 3_000;
+
 interface SkillAdapter {
   readonly name: string;
   readonly description: string;
@@ -783,7 +786,15 @@ export class SessionSupervisor {
     }
 
     try {
-      await record.session.abort();
+      // Abort is best-effort and settles only when the runtime reaches idle. A
+      // model stream that never observes the abort signal can keep the promise
+      // pending forever, which would leave the UI stuck on "running" and make
+      // the Stop button look dead. Bound the wait so the run state always
+      // resets and the UI recovers promptly.
+      await Promise.race([
+        record.session.abort(),
+        new Promise((resolve) => setTimeout(resolve, ABORT_SETTLE_TIMEOUT_MS)),
+      ]);
     } catch (error) {
       // Abort is best-effort. Even if the runtime reports a failure we still
       // reset local run state below so the UI does not stay stuck on "running".
