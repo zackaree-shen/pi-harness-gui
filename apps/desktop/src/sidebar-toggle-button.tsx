@@ -1,4 +1,5 @@
 import { SidebarToggleIcon } from "./icons";
+import { useT } from "./i18n";
 
 interface SidebarToggleButtonProps {
   readonly collapsed: boolean;
@@ -7,10 +8,11 @@ interface SidebarToggleButtonProps {
 }
 
 export function SidebarToggleButton({ collapsed, shortcutLabel, onToggle }: SidebarToggleButtonProps) {
+  const t = useT();
   return (
     <div className="shortcut-tooltip-wrap sidebar-toggle">
       <button
-        aria-label="Toggle sidebar"
+        aria-label={t("sidebar.toggleSidebar")}
         aria-pressed={!collapsed}
         className="icon-button sidebar-toggle__button"
         data-testid="sidebar-toggle"
@@ -20,7 +22,7 @@ export function SidebarToggleButton({ collapsed, shortcutLabel, onToggle }: Side
         <SidebarToggleIcon />
       </button>
       <span className="shortcut-tooltip sidebar-toggle__tooltip" role="tooltip">
-        <span>Toggle sidebar</span>
+        <span>{t("sidebar.toggleSidebar")}</span>
         <kbd>{shortcutLabel}</kbd>
       </span>
     </div>

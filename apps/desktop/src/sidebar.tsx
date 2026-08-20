@@ -22,6 +22,7 @@ import { useThreadMenu, type ThreadMenuState } from "./hooks/use-thread-menu";
 import { comparePinnedThreads, sessionThreadKey, type ThreadGroup, type ThreadListEntry } from "./thread-groups";
 import type { Dispatch, SetStateAction } from "react";
 import type { DesktopAppState } from "./desktop-state";
+import { useT } from "./i18n";
 
 interface SidebarProps {
   readonly activeView: AppView;
@@ -77,6 +78,7 @@ export function Sidebar(props: SidebarProps) {
     onUnarchiveSession,
   } = props;
 
+  const t = useT();
   const [activeId, setActiveId] = useState<string | null>(null);
   const threadMenu = useThreadMenu({ api, setSnapshot, updateSnapshot });
 
@@ -216,7 +218,7 @@ export function Sidebar(props: SidebarProps) {
           onClick={onNewThread}
         >
           <PlusIcon />
-          <span>New thread</span>
+          <span>{t("sidebar.newThread")}</span>
         </button>
 
         <div className="sidebar__nav">
@@ -226,7 +228,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onSetActiveView("threads")}
           >
             <FolderIcon />
-            <span>Threads</span>
+            <span>{t("sidebar.threads")}</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -234,7 +236,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onOpenSkills(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           >
             <SkillIcon />
-            <span>Skills</span>
+            <span>{t("sidebar.skills")}</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -242,7 +244,7 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onOpenExtensions(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           >
             <ExtensionIcon />
-            <span>Extensions</span>
+            <span>{t("sidebar.extensions")}</span>
           </button>
           <button
             className="sidebar__nav-item"
@@ -250,17 +252,17 @@ export function Sidebar(props: SidebarProps) {
             onClick={() => onOpenSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           >
             <SettingsIcon />
-            <span>Settings</span>
+            <span>{t("sidebar.settings")}</span>
           </button>
         </div>
       </div>
 
       <div className="sidebar__section">
         <div className="section__head">
-          <span>Threads</span>
+          <span>{t("sidebar.threads")}</span>
           <div className="section__tools">
             <button
-              aria-label="Open folder"
+              aria-label={t("sidebar.openFolder")}
               className="icon-button"
               type="button"
               onClick={() => {
@@ -274,8 +276,8 @@ export function Sidebar(props: SidebarProps) {
 
         {visibleWorkspaces.length === 0 ? (
           <div className="empty-state" data-testid="empty-state">
-            <h2>No folders yet</h2>
-            <p>Open a project folder to start building a workspace and session list.</p>
+            <h2>{t("sidebar.noFolders")}</h2>
+            <p>{t("sidebar.noFoldersDescription")}</p>
             <button
               className="button button--primary"
               type="button"
@@ -283,7 +285,7 @@ export function Sidebar(props: SidebarProps) {
                 void updateSnapshot(api, setSnapshot, () => api.pickWorkspace());
               }}
             >
-              Open first folder
+              {t("sidebar.openFirstFolder")}
             </button>
           </div>
         ) : (
@@ -452,6 +454,7 @@ function WorkspaceGroupContent(
   const linkedWorktree = linkedWorktreeByWorkspaceId.get(rootWorkspace.id);
   const archivedSectionOpen = wsMenu.expandedArchivedByWorkspace[rootWorkspace.id] ?? false;
   const isCollapsed = wsMenu.collapsedWorkspaces[rootWorkspace.id] ?? false;
+  const t = useT();
 
   return (
     <>
@@ -619,7 +622,7 @@ function WorkspaceGroupContent(
                 >
                   <ChevronDownIcon />
                 </span>
-                <span>Archived</span>
+                <span>{t("sidebar.archive")}</span>
                 <span className="archived-thread-group__count">{archivedThreads.length}</span>
               </button>
               {archivedSectionOpen ? (
@@ -681,11 +684,12 @@ function PinnedThreadsSection({
   readonly onSelectSession: (target: { workspaceId: string; sessionId: string }) => void;
   readonly onSetSessionPinned: (target: { workspaceId: string; sessionId: string }, pinned: boolean) => void;
 }) {
+  const t = useT();
   return (
-    <section className="pinned-thread-group" aria-label="Pinned threads">
+    <section className="pinned-thread-group" aria-label={t("sidebar.pinnedThreads")}>
       <div className="pinned-thread-group__head">
         <PinIcon filled />
-        <span>Pinned</span>
+        <span>{t("sidebar.pinned")}</span>
       </div>
       <SortableContext items={[...sortableIds]} strategy={verticalListSortingStrategy}>
         <div className="session-list session-list--pinned">
@@ -807,6 +811,7 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
   onSelect,
   onTogglePinned,
 }, ref) {
+  const t = useT();
   const indicatorVariant = sessionIndicatorVariant(thread);
   const pinned = Boolean(thread.session.pinnedAt);
   const actionContext = showContext ? ` in ${thread.contextLabel}` : "";
@@ -918,7 +923,7 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
                   type="button"
                   onClick={(event) => threadMenu.runMenuAction(event, () => threadMenu.startRename(thread))}
                 >
-                  <span>Rename thread</span>
+                  <span>{t("sidebar.renameThread")}</span>
                   <span className="workspace-menu__shortcut" aria-hidden="true">{RENAME_THREAD_SHORTCUT_HINT}</span>
                 </button>
                 <button
@@ -926,7 +931,7 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
                   type="button"
                   onClick={(event) => threadMenu.runMenuAction(event, () => threadMenu.archiveOrRestore(thread))}
                 >
-                  {archived ? "Restore" : "Archive"}
+                  {archived ? t("sidebar.restore") : t("sidebar.archiveAction")}
                 </button>
                 {thread.session.hasUnseenUpdate ? (
                   <button
@@ -934,7 +939,7 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
                     type="button"
                     onClick={(event) => threadMenu.runMenuAction(event, () => threadMenu.markRead(thread))}
                   >
-                    Mark as read
+                    {t("sidebar.markAsRead")}
                   </button>
                 ) : null}
                 <button
@@ -942,7 +947,7 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
                   type="button"
                   onClick={(event) => threadMenu.runMenuAction(event, () => threadMenu.copySessionId(thread))}
                 >
-                  Copy session id
+                  {t("sidebar.copySessionId")}
                 </button>
               </div>
             ) : null}
@@ -961,7 +966,7 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
         }}
       >
         <input
-          aria-label={`Rename thread ${thread.session.title}`}
+          aria-label={t("sidebar.renameThreadWithName", { name: thread.session.title })}
           className="workspace-rename__input"
           ref={threadMenu.renameInputRef}
           value={threadMenu.renameDraft}
@@ -974,8 +979,8 @@ const ThreadSessionRow = forwardRef<HTMLDivElement, ThreadSessionRowProps>(funct
           }}
         />
         <div className="workspace-rename__actions">
-          <button className="workspace-rename__button" type="button" onClick={threadMenu.cancelRename}>Cancel</button>
-          <button className="workspace-rename__button workspace-rename__button--primary" type="submit">Save</button>
+          <button className="workspace-rename__button" type="button" onClick={threadMenu.cancelRename}>{t("common.cancel")}</button>
+          <button className="workspace-rename__button workspace-rename__button--primary" type="submit">{t("common.save")}</button>
         </div>
       </form>
     ) : null}
