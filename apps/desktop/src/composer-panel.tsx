@@ -116,8 +116,11 @@ export function ComposerPanel({
   onToggleExtensionDock,
 }: ComposerPanelProps) {
   const t = useT();
-  const hasComposerInput = composerDraft.trim().length > 0 || attachments.length > 0;
-  const primaryActionIsStop = selectedSession.status === "running" && !hasComposerInput;
+  // While a run is active the primary action is Stop regardless of whether the
+  // composer has a draft — otherwise typing a follow-up turns the button into
+  // "Send" and the Stop affordance silently disappears ("Stop doesn't work").
+  // Queue a message mid-run with Ctrl/Cmd+Enter instead.
+  const primaryActionIsStop = selectedSession.status === "running";
 
   return (
     <footer className="composer">

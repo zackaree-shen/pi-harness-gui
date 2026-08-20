@@ -66,7 +66,10 @@ export function useSessionComposer(params: UseSessionComposerParams) {
     }
 
     const hasComposerInput = composerDraft.trim().length > 0 || composerAttachments.length > 0;
-    if (selectedSession.status === "running" && !hasComposerInput) {
+    // Stop is the primary action whenever the session is running, even with a
+    // draft in the composer (a follow-up is queued via Ctrl/Cmd+Enter instead).
+    // Keep the draft untouched so the user can continue editing after stopping.
+    if (selectedSession.status === "running") {
       void updateSnapshot(api, setSnapshot, () => api.cancelCurrentRun());
       return;
     }
