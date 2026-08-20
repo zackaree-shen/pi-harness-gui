@@ -36,12 +36,18 @@
     BlinkMacSystemFont,
     "SF Pro Text",
     "Segoe UI",
+    "PingFang SC",
+    "Microsoft YaHei UI",
+    "Microsoft YaHei",
+    "Noto Sans SC",
     sans-serif;
   --font-mono:
     ui-monospace,
     "SF Mono",
     "Cascadia Code",
     "Consolas",
+    "Sarasa Mono SC",
+    "Microsoft YaHei",
     monospace;
   --border: var(--line);
   --ink: var(--text);
