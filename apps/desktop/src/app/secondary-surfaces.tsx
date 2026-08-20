@@ -11,13 +11,29 @@ import { SkillsView } from "../skills-view";
 import { ExtensionsView } from "../extensions-view";
 import { SettingsView, type SettingsSection } from "../settings-view";
 import { SecondarySurface } from "../secondary-surface";
+import { useT } from "../i18n";
+
+function settingsNavLabel(id: SettingsSection, t: (key: import("../i18n").MessageKey) => string): string {
+  switch (id) {
+    case "appearance":
+      return t("settings.appearance.title");
+    case "providers":
+      return t("settings.providers.title");
+    case "models":
+      return t("settings.models.title");
+    case "notifications":
+      return t("settings.notifications.title");
+    default:
+      return t("settings.general.title");
+  }
+}
 
 const settingsNav = [
-  { id: "appearance", label: "Appearance" },
-  { id: "general", label: "General" },
-  { id: "providers", label: "Providers" },
-  { id: "models", label: "Models" },
-  { id: "notifications", label: "Notifications" },
+  { id: "appearance" },
+  { id: "general" },
+  { id: "providers" },
+  { id: "models" },
+  { id: "notifications" },
 ] as const;
 
 interface SecondarySurfacesProps {
@@ -55,6 +71,11 @@ export function SecondarySurfaces({
   onBack,
   onTrySkill,
 }: SecondarySurfacesProps) {
+  const t = useT();
+  const navItems = settingsNav.map((item) => ({
+    id: item.id,
+    label: settingsNavLabel(item.id, t),
+  }));
   const [notificationPermissionStatus, setNotificationPermissionStatus] =
     useState<DesktopNotificationPermissionStatus>("unknown");
   const [notificationPermissionPending, setNotificationPermissionPending] = useState(false);
@@ -256,7 +277,7 @@ export function SecondarySurfaces({
 
   if (activeView === "skills") {
     return (
-      <SecondarySurface onBack={onBack} testId="skills-surface" title="Skills">
+      <SecondarySurface onBack={onBack} testId="skills-surface" title={t("sidebar.skills")}>
         <div className="surface-toolbar">
           <label className="surface-toolbar__field">
             <span>Workspace</span>
@@ -297,7 +318,7 @@ export function SecondarySurfaces({
 
   if (activeView === "extensions") {
     return (
-      <SecondarySurface onBack={onBack} testId="extensions-surface" title="Extensions">
+      <SecondarySurface onBack={onBack} testId="extensions-surface" title={t("sidebar.extensions")}>
         <div className="surface-toolbar">
           <label className="surface-toolbar__field">
             <span>Workspace</span>
@@ -333,11 +354,11 @@ export function SecondarySurfaces({
   return (
     <SecondarySurface
       activeNavId={settingsSection}
-      navItems={settingsNav}
+      navItems={navItems}
       onBack={onBack}
       onSelectNav={(section) => onSelectSettingsSection(section as SettingsSection)}
       testId="settings-surface"
-      title="Settings"
+      title={t("settings.title")}
     >
       {settingsSection === "providers" ||
       (settingsSection === "models" && snapshot.modelSettingsScopeMode === "per-repo") ? (

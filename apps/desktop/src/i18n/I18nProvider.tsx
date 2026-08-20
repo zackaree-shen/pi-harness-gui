@@ -13,7 +13,7 @@ import type { AppLanguage, TValues } from "./types";
 
 const STORAGE_KEY = "pi-gui:language";
 
-interface I18nContextValue {
+export interface I18nContextValue {
   language: AppLanguage;
   setLanguage: (language: AppLanguage) => void;
   /** translate a message key with optional {placeholder} interpolation */
