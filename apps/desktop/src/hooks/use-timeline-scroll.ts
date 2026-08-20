@@ -205,12 +205,30 @@ export function useTimelineScroll({
     }
 
     if (exactBottomRestoreSessionKeyRef.current === selectedSessionKey && selectedSessionKey) {
+      // If virtualization is already finalized (disable=false), the exact-restore
+      // handshake has finished but the session key was left dangling by a finalize
+      // whose rAF check never settled. Continuing to return here would deadlock the
+      // pinned-bottom alignment forever; clear the residue and scroll directly.
+      if (!disableTimelineVirtualization) {
+        resetExactBottomRestoreState();
+        scrollTimelineToBottom(behavior);
+        return;
+      }
       pendingPinnedBottomBehaviorRef.current = behavior;
       deferredPinnedBottomAlignmentRef.current = true;
       return;
     }
 
     if (options?.preferExactRestore && selectedSessionKey && activeTranscript.length > VIRTUALIZATION_THRESHOLD) {
+      // Virtualization is already engaged and every row has been measured, so the
+      // container height is exact — scroll directly instead of toggling back to the
+      // non-virtualized path. Toggling here creates an infinite loop: disabling
+      // virtualization changes scrollHeight, which triggers onContentHeightChange,
+      // which calls back into this path and re-enables virtualization.
+      if (!disableTimelineVirtualization) {
+        scrollTimelineToBottom(behavior);
+        return;
+      }
       exactBottomRestoreSessionKeyRef.current = selectedSessionKey;
       pendingPinnedBottomBehaviorRef.current = behavior;
       preserveBottomOnNextPaneResizeRef.current = true;
@@ -219,7 +237,7 @@ export function useTimelineScroll({
     }
 
     scrollTimelineToBottom(behavior);
-  }, [activeTranscript.length, scrollTimelineToBottom, selectedSessionKey]);
+  }, [activeTranscript.length, disableTimelineVirtualization, scrollTimelineToBottom, selectedSessionKey]);
 
   const finalizeTimelineVirtualizationDisable = useCallback(() => {
     const pane = timelinePaneRef.current;

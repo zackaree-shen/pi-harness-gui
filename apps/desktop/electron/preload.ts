@@ -60,6 +60,12 @@ if (devReloadMarkers) {
   contextBridge.exposeInMainWorld("__piDevReloadHost", devReloadMarkers);
 }
 
+// Test harnesses pin the UI language via env; the product defaults to zh-CN.
+const initialLanguage = process.env.PI_APP_LANGUAGE === "en" ? "en" : undefined;
+if (initialLanguage) {
+  contextBridge.exposeInMainWorld("__piInitialLanguage", initialLanguage);
+}
+
 function subscribeIpc<T>(channel: string, listener: (payload: T) => void): () => void {
   const handler = (_event: Electron.IpcRendererEvent, payload: T) => listener(payload);
   ipcRenderer.on(channel, handler);

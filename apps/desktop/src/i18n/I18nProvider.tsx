@@ -24,6 +24,10 @@ const I18nContext = createContext<I18nContextValue | null>(null);
 
 function readInitialLanguage(): AppLanguage {
   try {
+    const pinned = (globalThis as { __piInitialLanguage?: AppLanguage }).__piInitialLanguage;
+    if (pinned) {
+      return pinned;
+    }
     return globalThis.localStorage?.getItem(STORAGE_KEY) === "en" ? "en" : "zh-CN";
   } catch {
     return "zh-CN";
@@ -68,8 +72,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: MessageKey, values?: TValues): string => {
-      const catalog = language === "zh-CN" ? zhCNMessages : enMessages;
-      return interpolate(getByPath(catalog as unknown as Record<string, unknown>, key), values);
+      const raw =
+        language === "en"
+          ? (enMessages as Record<string, string>)[key] ?? key
+          : getByPath(zhCNMessages as unknown as Record<string, unknown>, key);
+      return interpolate(raw, values);
     },
     [language],
   );
