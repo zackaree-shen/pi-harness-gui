@@ -33,6 +33,7 @@ import type { SettingsSection } from "../settings-view";
 import { useMentionMenu } from "./use-mention-menu";
 import { useSlashMenu } from "./use-slash-menu";
 import { resolveRepoWorkspaceId } from "../workspace-roots";
+import { useT } from "../i18n";
 
 interface UseNewThreadControllerParams {
   readonly api: PiDesktopApi | undefined;
@@ -47,6 +48,7 @@ interface UseNewThreadControllerParams {
 }
 
 export function useNewThreadController(params: UseNewThreadControllerParams) {
+  const t = useT();
   const {
     api,
     snapshot,
@@ -82,7 +84,7 @@ export function useNewThreadController(params: UseNewThreadControllerParams) {
   const modelOnboarding = deriveModelOnboardingState(runtime, {
     provider: resolvedProvider,
     modelId: resolvedModelId,
-  });
+  }, t);
 
   const focusComposer = useCallback(() => {
     window.requestAnimationFrame(() => {

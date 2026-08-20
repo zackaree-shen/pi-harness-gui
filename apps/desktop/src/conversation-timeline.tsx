@@ -5,6 +5,7 @@ import { buildDisplayTimelineItems } from "./timeline-turns";
 import { ThreadSearchBar } from "./thread-search";
 import { TimelineItem } from "./timeline-item";
 import { SparkIcon } from "./icons";
+import { useT } from "./i18n";
 
 const OVERSCAN_PX = 720;
 const ROW_GAP_PX = 14;
@@ -312,9 +313,10 @@ function TimelineContextRail({
   readonly prompts: readonly UserPromptEntry[];
   readonly onSelect: (messageId: string) => void;
 }) {
+  const t = useT();
   return (
-    <nav className="timeline-context-rail" data-testid="timeline-context-rail" aria-label="Prompts in this thread">
-      <div className="timeline-context-rail__title">Prompts</div>
+    <nav className="timeline-context-rail" data-testid="timeline-context-rail" aria-label={t("timeline.promptsInThread")}>
+      <div className="timeline-context-rail__title">{t("timeline.prompts")}</div>
       <ol className="timeline-context-rail__list">
         {prompts.map((prompt) => (
           <li key={prompt.id}>
@@ -348,6 +350,7 @@ function cssEscape(value: string): string {
 }
 
 function TranscriptSkeleton() {
+  const t = useT();
   return (
     <div className="transcript-skeleton" data-testid="transcript-skeleton" aria-hidden="true">
       <div className="transcript-skeleton__row transcript-skeleton__row--user">
@@ -365,19 +368,20 @@ function TranscriptSkeleton() {
         <span className="skeleton-line" style={{ width: "80%" }} />
         <span className="skeleton-line" style={{ width: "72%" }} />
       </div>
-      <span className="sr-only">Loading transcript…</span>
+      <span className="sr-only">{t("timeline.loading")}</span>
     </div>
   );
 }
 
 function TranscriptEmptyState() {
+  const t = useT();
   return (
     <div className="transcript-empty" data-testid="transcript-empty">
       <span className="transcript-empty__glyph" aria-hidden="true">
         <SparkIcon />
       </span>
-      <p className="transcript-empty__title">Start the conversation</p>
-      <p className="transcript-empty__hint">Send a prompt below to begin this session.</p>
+      <p className="transcript-empty__title">{t("timeline.startConversation")}</p>
+      <p className="transcript-empty__hint">{t("timeline.startDescription")}</p>
     </div>
   );
 }

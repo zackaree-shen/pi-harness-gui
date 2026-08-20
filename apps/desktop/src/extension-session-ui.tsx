@@ -3,10 +3,10 @@ import type { HostUiResponse } from "@pi-gui/session-driver";
 import { trapDialogFocus } from "./dialog-focus";
 import { ChevronDownIcon, ChevronRightIcon } from "./icons";
 import type { SessionExtensionDialogRecord, SessionExtensionUiStateRecord } from "./desktop-state";
+import { useT } from "./i18n";
 
 const ANSI_ESCAPE_PATTERN = /\u001B\[[0-?]*[ -/]*[@-~]/g;
 const DOCK_SEGMENT_SEPARATOR = "--------------------";
-const GENERIC_ACTIVE_LABEL = "Extension UI active";
 
 interface ExtensionDockBlock {
   readonly key: string;
@@ -26,7 +26,10 @@ export function hasExtensionDockContent(uiState?: SessionExtensionUiStateRecord)
   return uiState.statuses.length > 0 || uiState.widgets.length > 0;
 }
 
-export function buildExtensionDockModel(uiState?: SessionExtensionUiStateRecord): ExtensionDockModel | undefined {
+export function buildExtensionDockModel(
+  uiState: SessionExtensionUiStateRecord | undefined,
+  t: (key: import("./i18n").MessageKey) => string,
+): ExtensionDockModel | undefined {
   if (!hasExtensionDockContent(uiState)) {
     return undefined;
   }
@@ -39,7 +42,7 @@ export function buildExtensionDockModel(uiState?: SessionExtensionUiStateRecord)
     .filter((status) => status.text.trim().length > 0);
   const primaryBlocks = buildWidgetBlocks(uiState?.widgets ?? [], "aboveComposer");
   const secondaryBlocks = buildWidgetBlocks(uiState?.widgets ?? [], "belowComposer");
-  const summaryText = resolveDockSummaryText(statuses, primaryBlocks, secondaryBlocks);
+  const summaryText = resolveDockSummaryText(statuses, primaryBlocks, secondaryBlocks, t);
 
   return {
     summaryText,
@@ -90,6 +93,7 @@ export function ExtensionDialog({
   readonly dialog: SessionExtensionDialogRecord;
   readonly onRespond: (response: HostUiResponse) => void;
 }) {
+  const t = useT();
   const [draft, setDraft] = useState("");
   const titleId = useId();
   const bodyId = useId();
@@ -188,7 +192,7 @@ export function ExtensionDialog({
           <input
             autoFocus
             className="skills-search"
-            placeholder={dialog.placeholder ?? "Enter a value"}
+            placeholder={dialog.placeholder ?? t("extensions.enterValue")}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
@@ -256,6 +260,7 @@ function resolveDockSummaryText(
   statuses: readonly { readonly key: string; readonly text: string }[],
   primaryBlocks: readonly ExtensionDockBlock[],
   secondaryBlocks: readonly ExtensionDockBlock[],
+  t: (key: import("./i18n").MessageKey) => string,
 ): string {
   for (const status of statuses) {
     if (status.text.trim().length > 0) {
@@ -270,7 +275,7 @@ function resolveDockSummaryText(
     }
   }
 
-  return GENERIC_ACTIVE_LABEL;
+  return t("extensions.uiActive");
 }
 
 function buildDockBodyText(

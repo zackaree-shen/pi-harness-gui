@@ -3,6 +3,7 @@ import type { RuntimeExtensionRecord, RuntimeSnapshot } from "@pi-gui/session-dr
 import { extensionSourceSummary } from "../extension-display";
 import type { PiDesktopApi } from "../ipc";
 import { nextMenuIndex } from "./use-slash-menu";
+import { useT } from "../i18n";
 
 export type MentionOption =
   | {
@@ -62,6 +63,7 @@ export function useMentionMenu({
   api,
   onEnableExtension,
 }: UseMentionMenuParams): MentionMenuState {
+  const t = useT();
   const [allFiles, setAllFiles] = useState<readonly string[]>([]);
   const [pendingEnablePaths, setPendingEnablePaths] = useState<ReadonlySet<string>>(() => new Set());
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -115,7 +117,7 @@ export function useMentionMenu({
       return [];
     }
     const lowerQuery = mentionMatch.query.toLowerCase();
-    const extensionOptions = buildExtensionMentionOptions(runtime?.extensions ?? [], lowerQuery, pendingEnablePaths);
+    const extensionOptions = buildExtensionMentionOptions(runtime?.extensions ?? [], lowerQuery, pendingEnablePaths, t);
     const fileOptions = allFiles
       .filter((file) => file.toLowerCase().includes(lowerQuery))
       .slice(0, 10)
@@ -259,12 +261,13 @@ function buildExtensionMentionOptions(
   extensions: readonly RuntimeExtensionRecord[],
   lowerQuery: string,
   pendingEnablePaths: ReadonlySet<string>,
+  t: (key: import("../i18n").MessageKey) => string,
 ): MentionOption[] {
   return extensions
     .map((extension) => ({
       extension,
       insertText: extensionMentionText(extension),
-      description: describeExtension(extension),
+      description: describeExtension(extension, t),
       enabling: pendingEnablePaths.has(extension.path),
     }))
     .filter((option) => {
@@ -275,7 +278,7 @@ function buildExtensionMentionOptions(
         option.extension.displayName,
         option.insertText,
         option.extension.sourceInfo.source,
-        extensionSourceSummary(option.extension),
+        extensionSourceSummary(option.extension, t),
       ].some((value) => value.toLowerCase().includes(lowerQuery));
     })
     .slice(0, 8)
@@ -291,19 +294,22 @@ function buildExtensionMentionOptions(
     }));
 }
 
-function describeExtension(extension: RuntimeExtensionRecord): string {
+function describeExtension(
+  extension: RuntimeExtensionRecord,
+  t: (key: import("../i18n").MessageKey, values?: import("../i18n").TValues) => string,
+): string {
   if (extension.description) {
     return extension.description;
   }
 
   const contributionParts = [
-    extension.commands.length > 0 ? pluralizeContribution(extension.commands.length, "command") : undefined,
-    extension.tools.length > 0 ? pluralizeContribution(extension.tools.length, "tool") : undefined,
+    extension.commands.length > 0 ? t("extensions.commandCount", { count: extension.commands.length }) : undefined,
+    extension.tools.length > 0 ? t("extensions.toolCount", { count: extension.tools.length }) : undefined,
   ].filter(Boolean);
   if (contributionParts.length > 0) {
     return contributionParts.join(" · ");
   }
-  return extensionSourceSummary(extension);
+  return extensionSourceSummary(extension, t);
 }
 
 function extensionMentionText(extension: RuntimeExtensionRecord): string {

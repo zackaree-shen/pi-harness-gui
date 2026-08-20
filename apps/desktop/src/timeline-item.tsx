@@ -4,6 +4,7 @@ import { MessageMarkdown } from "./message-markdown";
 import { InlineDiff, extractDiffFromOutput } from "./diff-inline";
 import { ChevronRightIcon, CopyIcon, DiffIcon, FileIcon, ForkIcon, SparkIcon, TerminalIcon } from "./icons";
 import { extensionToLanguage } from "./syntax-highlight";
+import { useT } from "./i18n";
 
 export function TimelineItem({
   item,
@@ -58,6 +59,7 @@ function TimelineMessage({
   readonly sourceMessageIndex?: number;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
 }) {
+  const t = useT();
   if (item.role === "user") {
     return (
       <article className="timeline-item timeline-item--user">
@@ -97,7 +99,7 @@ function TimelineMessage({
     return (
       <article className="timeline-item timeline-item--summary-card">
         <div className="timeline-item__summary-eyebrow">
-          {item.role === "branchSummary" ? "Branch summary" : "Compaction summary"}
+          {item.role === "branchSummary" ? t("timeline.branchSummary") : t("timeline.compactionSummary")}
         </div>
         <MessageMarkdown text={item.text} />
       </article>
@@ -113,13 +115,13 @@ function TimelineMessage({
           <button
             type="button"
             className="timeline-item__action"
-            title="Fork conversation from this point"
-            aria-label="Fork conversation from this point"
+            title={t("timeline.forkFromPoint")}
+            aria-label={t("timeline.forkFromPoint")}
             data-testid="fork-from-message"
             onClick={() => onForkFromMessage(sourceMessageIndex, item.text)}
           >
             <ForkIcon />
-            <span className="timeline-item__action-label">Fork</span>
+            <span className="timeline-item__action-label">{t("timeline.fork")}</span>
           </button>
         </div>
       ) : null}
@@ -322,9 +324,10 @@ function statusLabel(status: "running" | "success" | "error") {
 }
 
 function TimelineTurnMarkerItem({ item }: { readonly item: TimelineTurnMarker }) {
+  const t = useT();
   return (
     <div className="timeline-turn-marker" data-testid="timeline-turn-marker">
-      <span className="timeline-turn-marker__label">{`Worked for ${formatWorkedDuration(item.durationMs)}`}</span>
+      <span className="timeline-turn-marker__label">{t("timeline.workedFor", { duration: formatWorkedDuration(item.durationMs) })}</span>
     </div>
   );
 }

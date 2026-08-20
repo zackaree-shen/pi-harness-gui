@@ -7,6 +7,10 @@ import type {
 } from "@pi-gui/session-driver/runtime-types";
 import type { ExtensionCommandCompatibilityRecord } from "./desktop-state";
 import { titleCase } from "./string-utils";
+import type { MessageKey } from "./i18n/messages/zh-CN";
+import type { TValues } from "./i18n/types";
+
+type TranslateFn = (key: MessageKey, values?: TValues) => string;
 
 export type ComposerSlashCommandKind =
   | "runtime"
@@ -65,6 +69,36 @@ export interface ComposerProviderOption extends ComposerSlashOption {
 
 export const MODEL_OPTIONS_EMPTY_TITLE = "No models available";
 export const MODEL_OPTIONS_EMPTY_DESCRIPTION = "Open Settings to enable a model or log in to a provider.";
+
+export const HOST_COMMAND_TITLES: Readonly<Record<string, MessageKey>> = {
+  "host:model": "composer.commandModel",
+  "host:thinking": "composer.commandReasoning",
+  "host:tree": "composer.commandTree",
+  "host:status": "composer.commandStatus",
+  "host:login": "composer.commandLogin",
+  "host:logout": "composer.commandLogout",
+  "host:settings": "composer.commandSettings",
+  "host:scoped-models": "composer.commandEnabledModels",
+  "host:session": "composer.commandSession",
+  "host:name": "composer.commandRename",
+  "host:compact": "composer.commandCompact",
+  "host:reload": "composer.commandReload",
+} as const;
+
+export const HOST_COMMAND_DESCRIPTIONS: Readonly<Record<string, MessageKey>> = {
+  "host:model": "composer.commandModelDesc",
+  "host:thinking": "composer.commandReasoningDesc",
+  "host:tree": "composer.commandTreeDesc",
+  "host:status": "composer.commandStatusDesc",
+  "host:login": "composer.commandLoginDesc",
+  "host:logout": "composer.commandLogoutDesc",
+  "host:settings": "composer.commandSettingsDesc",
+  "host:scoped-models": "composer.commandEnabledModelsDesc",
+  "host:session": "composer.commandSessionDesc",
+  "host:name": "composer.commandRenameDesc",
+  "host:compact": "composer.commandCompactDesc",
+  "host:reload": "composer.commandReloadDesc",
+} as const;
 
 export type ParsedComposerCommand =
   | { type: "model"; provider: string; modelId: string }
@@ -246,6 +280,7 @@ export function buildSlashCommandSections(
   options: {
     readonly allowTreeCommand?: boolean;
   } = {},
+  t?: TranslateFn,
 ): readonly ComposerSlashCommandSection[] {
   const normalizedQuery = query.trim().toLowerCase();
   const availableRuntimeCommands = resolveRuntimeCommands(runtime, sessionCommands);
@@ -270,6 +305,14 @@ export function buildSlashCommandSections(
   const allowTreeCommand = options.allowTreeCommand ?? true;
   const hostMatches = HOST_ACTION_SLASH_COMMANDS.filter(
     (command) => (allowTreeCommand || command.kind !== "tree") && matchesCommand(command, normalizedQuery),
+  ).map((command) =>
+    t
+      ? {
+          ...command,
+          title: t(HOST_COMMAND_TITLES[command.id] ?? "composer.commandModel"),
+          description: t(HOST_COMMAND_DESCRIPTIONS[command.id] ?? "composer.commandModelDesc"),
+        }
+      : command,
   );
 
   // Prefer a host action when it is a prefix match and runtime skills only
@@ -283,12 +326,12 @@ export function buildSlashCommandSections(
   );
   const runtimeSection: ComposerSlashCommandSection = {
     id: "runtime",
-    title: runtimeMatches.length > 0 ? "Runtime Commands" : undefined,
+    title: runtimeMatches.length > 0 ? t?.("composer.sectionRuntime") ?? "Runtime Commands" : undefined,
     items: runtimeMatches,
   };
   const hostSection: ComposerSlashCommandSection = {
     id: "host",
-    title: hostMatches.length > 0 ? "Host Actions" : undefined,
+    title: hostMatches.length > 0 ? t?.("composer.sectionHost") ?? "Host Actions" : undefined,
     items: hostMatches,
   };
   const sections: ComposerSlashCommandSection[] =
@@ -380,6 +423,7 @@ export function flattenSlashSections(
 export function buildProviderOptions(
   providers: readonly RuntimeProviderRecord[],
   filter: (provider: RuntimeProviderRecord) => boolean = () => true,
+  t?: TranslateFn,
 ): readonly ComposerProviderOption[] {
   return providers
     .filter(filter)
@@ -387,7 +431,7 @@ export function buildProviderOptions(
     .map((provider) => ({
       value: provider.id,
       label: provider.name,
-      description: describeProvider(provider),
+      description: describeProvider(provider, t),
       providerId: provider.id,
     }));
 }
@@ -429,33 +473,60 @@ export function buildModelOptions(
 export function slashOptionsForCommand(
   command: ComposerSlashCommand | undefined,
   runtime?: RuntimeSnapshot,
+  t?: TranslateFn,
 ): readonly ComposerSlashOption[] {
   if (!command) {
     return [];
   }
 
   if (command.kind === "thinking") {
-    return THINKING_OPTIONS;
+    return THINKING_OPTIONS.map((option) =>
+      t
+        ? {
+            ...option,
+            label: t(THINKING_LABEL_KEYS[option.value] ?? "settings.models.thinkingLow"),
+            description: t(THINKING_DESC_KEYS[option.value] ?? "composer.thinkingLowDesc"),
+          }
+        : option,
+    );
   }
   if (command.kind === "model") {
     return buildModelOptions(runtime);
   }
   if (command.kind === "login") {
-    return buildProviderOptions(runtime?.providers ?? [], (provider) => provider.oauthSupported);
+    return buildProviderOptions(runtime?.providers ?? [], (provider) => provider.oauthSupported, t);
   }
   if (command.kind === "logout") {
     return buildProviderOptions(
       runtime?.providers ?? [],
       (provider) => provider.authSource === "oauth" || provider.authSource === "auth_file",
+      t,
     );
   }
 
   return [];
 }
 
+export const THINKING_LABEL_KEYS: Readonly<Record<string, MessageKey>> = {
+  low: "settings.models.thinkingLow",
+  medium: "settings.models.thinkingMedium",
+  high: "settings.models.thinkingHigh",
+  xhigh: "settings.models.thinkingXHigh",
+  max: "settings.models.thinkingMax",
+} as const;
+
+export const THINKING_DESC_KEYS: Readonly<Record<string, MessageKey>> = {
+  low: "composer.thinkingLowDesc",
+  medium: "composer.thinkingMediumDesc",
+  high: "composer.thinkingHighDesc",
+  xhigh: "composer.thinkingXHighDesc",
+  max: "composer.thinkingMaxDesc",
+} as const;
+
 export function slashOptionEmptyState(
   command: ComposerSlashCommand | undefined,
   runtime?: RuntimeSnapshot,
+  t?: TranslateFn,
 ): ComposerSlashOptionEmptyState | undefined {
   if (!command) {
     return undefined;
@@ -463,8 +534,8 @@ export function slashOptionEmptyState(
 
   if (command.kind === "model" && buildModelOptions(runtime).length === 0) {
     return {
-      title: MODEL_OPTIONS_EMPTY_TITLE,
-      description: MODEL_OPTIONS_EMPTY_DESCRIPTION,
+      title: t?.("composer.noModelsAvailable") ?? MODEL_OPTIONS_EMPTY_TITLE,
+      description: t?.("composer.enableModelOrLogin") ?? MODEL_OPTIONS_EMPTY_DESCRIPTION,
     };
   }
 
@@ -510,26 +581,26 @@ function buildSlashSearchAliases(command: ComposerSlashCommand): readonly string
   return [...aliases].filter(Boolean);
 }
 
-function describeProvider(provider: RuntimeProviderRecord): string {
+function describeProvider(provider: RuntimeProviderRecord, t?: TranslateFn): string {
   if (provider.authSource === "oauth") {
-    return "OAuth connected";
+    return t?.("composer.providerOAuthConnected") ?? "OAuth connected";
   }
   if (provider.authSource === "auth_file") {
-    return "Saved API key";
+    return t?.("composer.providerSavedKey") ?? "Saved API key";
   }
   if (provider.authSource === "env") {
-    return "Configured via environment";
+    return t?.("composer.providerEnvConfigured") ?? "Configured via environment";
   }
   if (provider.authSource === "external") {
-    return "Configured externally";
+    return t?.("composer.providerExternalConfigured") ?? "Configured externally";
   }
   if (provider.oauthSupported) {
-    return "OAuth available";
+    return t?.("composer.providerOAuthAvailable") ?? "OAuth available";
   }
   if (provider.apiKeySetupSupported) {
-    return "Needs API key";
+    return t?.("composer.providerNeedsKey") ?? "Needs API key";
   }
-  return "Available";
+  return t?.("composer.providerAvailable") ?? "Available";
 }
 
 function compareProviders(left: RuntimeProviderRecord, right: RuntimeProviderRecord): number {
@@ -664,15 +735,30 @@ export function parseComposerCommand(value: string): ParsedComposerCommand | und
   return undefined;
 }
 
-export function incompleteComposerCommandMessage(value: string): string | undefined {
+export function incompleteComposerCommandMessage(value: string, t?: TranslateFn): string | undefined {
   const trimmed = value.trim();
   if (!trimmed.startsWith("/")) {
     return undefined;
   }
 
   const [command] = trimmed.split(/\s+/);
-  return INCOMPLETE_COMMAND_MESSAGES[command as keyof typeof INCOMPLETE_COMMAND_MESSAGES];
+  if (!command) {
+    return undefined;
+  }
+  const key = INCOMPLETE_MESSAGE_KEYS[command as keyof typeof INCOMPLETE_MESSAGE_KEYS];
+  return key ? t?.(key) ?? INCOMPLETE_COMMAND_MESSAGES[command] : undefined;
 }
+
+const INCOMPLETE_MESSAGE_KEYS: Readonly<Record<string, MessageKey>> = {
+  "/compact": "composer.incompleteCompact",
+  "/login": "composer.incompleteLogin",
+  "/logout": "composer.incompleteLogout",
+  "/model": "composer.incompleteModel",
+  "/name": "composer.incompleteName",
+  "/scoped-models": "composer.incompleteScopedModels",
+  "/settings": "composer.incompleteSettings",
+  "/thinking": "composer.incompleteThinking",
+} as const;
 
 export function isExactSlashCommand(query: string, command: ComposerSlashCommand): boolean {
   return query.trim().toLowerCase() === command.command.toLowerCase();

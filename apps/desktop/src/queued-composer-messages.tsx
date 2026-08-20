@@ -1,5 +1,6 @@
 import type { ComposerAttachment, QueuedComposerMessage } from "./desktop-state";
 import { FileIcon } from "./icons";
+import { useT } from "./i18n";
 
 interface QueuedComposerMessagesProps {
   readonly messages: readonly QueuedComposerMessage[];
@@ -18,6 +19,7 @@ export function QueuedComposerMessages({
   onSteerMessage,
   onCancelEdit,
 }: QueuedComposerMessagesProps) {
+  const t = useT();
   if (messages.length === 0 && !editingQueuedMessageId) {
     return null;
   }
@@ -26,9 +28,9 @@ export function QueuedComposerMessages({
     <div className="queued-composer-messages" data-testid="queued-composer-messages">
       {editingQueuedMessageId ? (
         <div className="queued-composer-messages__editing" data-testid="queued-composer-editing">
-          <span>Editing queued message</span>
+          <span>{t("composer.editingQueuedMessage")}</span>
           <button type="button" onClick={onCancelEdit}>
-            Cancel
+            {t("common.cancel")}
           </button>
         </div>
       ) : null}

@@ -13,6 +13,7 @@ import { ComposerSurface } from "./composer-surface";
 import { ModelOnboardingNoticeBanner } from "./model-onboarding-notice";
 import type { ModelOnboardingState, ModelOnboardingSettingsSection } from "./model-onboarding";
 import { ModelSelector } from "./model-selector";
+import { useT } from "./i18n";
 import type { ExtensionDockModel } from "./extension-session-ui";
 
 interface ComposerPanelProps {
@@ -114,6 +115,7 @@ export function ComposerPanel({
   extensionDockExpanded,
   onToggleExtensionDock,
 }: ComposerPanelProps) {
+  const t = useT();
   const hasComposerInput = composerDraft.trim().length > 0 || attachments.length > 0;
   const primaryActionIsStop = selectedSession.status === "running" && !hasComposerInput;
 
@@ -156,9 +158,9 @@ export function ComposerPanel({
           selectedMentionIndex={selectedMentionIndex}
           onSelectMention={onSelectMention}
           onEnableMentionExtension={onEnableMentionExtension}
-          textareaLabel="Composer"
+          textareaLabel={t("composer.sendMessage")}
           textareaTestId="composer"
-          textareaPlaceholder="Ask pi to inspect the repo, run a fix, or continue the current thread..."
+          textareaPlaceholder={t("composer.placeholder")}
           extensionDock={extensionDock}
           extensionDockExpanded={extensionDockExpanded}
           onToggleExtensionDock={onToggleExtensionDock}
@@ -168,7 +170,7 @@ export function ComposerPanel({
                 <div className="composer__hint">
                   {selectedSession.status === "running"
                     ? `${runningLabel} · Enter to queue · Cmd+Enter to steer`
-                    : "Enter to send · Shift+Enter for newline"}
+                    : t("composer.hint")}
                   {" · "}
                   <ModelSelector
                     runtime={runtime}
@@ -184,7 +186,7 @@ export function ComposerPanel({
                 </div>
                 <div className="composer__actions">
                   <button
-                    aria-label="Attach files"
+                    aria-label={t("composer.attachFiles")}
                     className="icon-button composer__attach"
                     type="button"
                     onClick={onPickAttachments}
@@ -192,7 +194,7 @@ export function ComposerPanel({
                     <PlusIcon />
                   </button>
                   <button
-                    aria-label={primaryActionIsStop ? "Stop run" : "Send message"}
+                    aria-label={primaryActionIsStop ? t("composer.stopRun") : t("composer.sendMessage")}
                     className="button button--primary button--cta-icon"
                     data-testid="send"
                     type="button"

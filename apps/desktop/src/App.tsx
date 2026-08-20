@@ -47,8 +47,10 @@ import { deriveWorkspaceContext } from "./workspace-context";
 import { useTreeForkModals } from "./hooks/use-tree-fork-modals";
 import { useComposerDraftSync } from "./hooks/use-composer-draft-sync";
 import { useSessionComposer } from "./hooks/use-session-composer";
+import { useT } from "./i18n";
 
 export default function App() {
+  const t = useT();
   const [snapshot, setSnapshot, selectedTranscript] = useDesktopAppState();
   const [settingsSection, setSettingsSection] = useState<SettingsSection>("general");
   const [settingsWorkspaceId, setSettingsWorkspaceId] = useState("");
@@ -138,7 +140,7 @@ export default function App() {
   const selectedSessionModelOnboarding = deriveModelOnboardingState(selectedModelRuntime, {
     provider: resolvedSessionProvider,
     modelId: resolvedSessionModelId,
-  });
+  }, t);
   const queuedComposerMessages = snapshot?.queuedComposerMessages ?? [];
   const editingQueuedMessageId = snapshot?.editingQueuedMessageId;
   const runningLabel = useRunningLabel(selectedSession?.status === "running" ? selectedSession.runningSince : undefined);
@@ -220,7 +222,7 @@ export default function App() {
     setOpenTerminalSessionKey("");
     setTakeoverTerminalSessionKey("");
   }, [selectedSessionKey]);
-  const selectedExtensionDock = useMemo(() => buildExtensionDockModel(selectedExtensionUi), [selectedExtensionUi]);
+  const selectedExtensionDock = useMemo(() => buildExtensionDockModel(selectedExtensionUi, t), [selectedExtensionUi, t]);
   const displayedSessionTitle = selectedExtensionUi?.title ?? selectedSession?.title ?? "";
   const activeExtensionDialog = selectedExtensionUi?.pendingDialogs[0];
   const isSelectedExtensionDockExpanded = dockExpandedBySession[selectedSessionKey] ?? false;

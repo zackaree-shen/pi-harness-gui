@@ -286,7 +286,7 @@ function NewThreadComposerFooter({
               dropdownPlacement="below"
               showEmptyModelControl
               unselectedModelLabel={modelOnboarding.unselectedModelLabel}
-              emptyModelLabel={MODEL_OPTIONS_EMPTY_TITLE}
+              emptyModelLabel={t("composer.noModelsAvailable")}
               emptyModelTitle={modelOnboarding.emptyModelTitle}
               onSetModel={onSetModel}
               onSetThinking={onSetThinking}

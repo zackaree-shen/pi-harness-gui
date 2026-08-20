@@ -11,6 +11,7 @@ import { hasFilesInDataTransfer } from "./composer-attachments";
 import { ExtensionDock, type ExtensionDockModel } from "./extension-session-ui";
 import { ExtensionIcon, FileIcon, ModelIcon, ReasoningIcon, SettingsIcon, SkillIcon, SparkIcon, StatusIcon } from "./icons";
 import { QueuedComposerMessages } from "./queued-composer-messages";
+import { useT } from "./i18n";
 
 type ExtensionMentionOption = Extract<MentionOption, { kind: "extension" }>;
 type FileMentionOption = Extract<MentionOption, { kind: "file" }>;
@@ -102,6 +103,7 @@ export function ComposerSurface({
   onToggleExtensionDock,
   footer,
 }: ComposerSurfaceProps) {
+  const t = useT();
   const [isDragActive, setIsDragActive] = useState(false);
   const dragDepthRef = useRef(0);
 
@@ -269,7 +271,7 @@ export function ComposerSurface({
                               <span className="slash-menu__title">{command.title}</span>
                               {command.sourceLabel ? <span className="slash-menu__skill-badge">{command.sourceLabel}</span> : null}
                               {command.compatibility?.status === "terminal-only" ? (
-                                <span className="slash-menu__skill-badge slash-menu__skill-badge--warning">Terminal-only</span>
+                                <span className="slash-menu__skill-badge slash-menu__skill-badge--warning">{t("timeline.terminalOnly")}</span>
                               ) : null}
                             </span>
                             <span className="slash-menu__description">{command.description}</span>

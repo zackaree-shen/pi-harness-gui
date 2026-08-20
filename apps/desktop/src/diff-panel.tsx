@@ -6,6 +6,7 @@ import { InlineDiff } from "./diff-inline";
 import { FileIcon, FolderIcon, RefreshIcon } from "./icons";
 import { extensionToLanguage } from "./syntax-highlight";
 import { loadReviewed, pruneReviewed, saveReviewed } from "./reviewed-files-store";
+import { useT } from "./i18n";
 
 interface WorkbenchChangedFile extends ChangedFileEntry {
   readonly workspaceId: string;
@@ -44,6 +45,7 @@ export function DiffPanel({
   fileRequest,
   contexts,
 }: DiffPanelProps) {
+  const t = useT();
   const [filesByWorkspace, setFilesByWorkspace] = useState<Readonly<Record<string, readonly string[]>>>({});
   const [changedByWorkspace, setChangedByWorkspace] =
     useState<Readonly<Record<string, ChangedFilesResult>>>({});
@@ -344,7 +346,7 @@ export function DiffPanel({
       <div className="diff-panel__header file-workbench__header">
         <div className="file-workbench__heading">
           <h2 className="diff-panel__title">{panelMode === "changes" ? "Changes" : "Files"}</h2>
-          <span className="file-workbench__subtitle">{buildSubtitle(activeContext)}</span>
+          <span className="file-workbench__subtitle">{buildSubtitle(activeContext, t)}</span>
         </div>
         {showReviewCounter ? (
           <span className="diff-panel__counter" data-testid="diff-panel-counter">
@@ -363,7 +365,7 @@ export function DiffPanel({
       </div>
 
       {showContextStrip ? (
-        <div className="file-workbench__context-strip" aria-label="File scopes">
+        <div className="file-workbench__context-strip" aria-label={t("diff.fileScopes")}>
           {contexts.map((context) => {
             const isActive = activeContext?.workspace.id === context.workspace.id;
             const changedResult = changedByWorkspace[context.workspace.id];
@@ -375,10 +377,10 @@ export function DiffPanel({
                 type="button"
                 onClick={() => setActiveWorkspaceId(context.workspace.id)}
               >
-                <span>{contextLabel(context)}</span>
+                <span>{contextLabel(context, t)}</span>
                 <strong>
                   {changedResult === undefined
-                    ? "Loading"
+                    ? t("diff.loadingChanges")
                     : changedResult.state === "unavailable"
                       ? "Unavailable"
                       : changeCount}
@@ -391,13 +393,13 @@ export function DiffPanel({
 
       <div className="file-workbench__body">
         {panelMode === "files" ? (
-          <section className="file-workbench__section file-workbench__section--tree" aria-label="Workspace file tree">
+          <section className="file-workbench__section file-workbench__section--tree" aria-label={t("diff.workspaceTree")}>
             <div className="file-workbench__section-header">
-              <span>Workspace tree</span>
+              <span>{t("diff.workspaceTreeShort")}</span>
               <span>{activeFiles.length}</span>
             </div>
             {activeTree.length === 0 ? (
-              <div className="diff-panel__empty">No indexed files</div>
+              <div className="diff-panel__empty">{t("diff.noIndexedFiles")}</div>
             ) : (
               <div className="file-workbench__tree" data-testid="file-workbench-tree">
                 {activeTree.map((node) => (
@@ -418,14 +420,14 @@ export function DiffPanel({
             )}
           </section>
         ) : (
-          <section className="file-workbench__section file-workbench__section--changes" aria-label="Changed files">
+          <section className="file-workbench__section file-workbench__section--changes" aria-label={t("diff.changedFiles")}>
             <div className="file-workbench__section-header">
-              <span>Changed files</span>
+              <span>{t("diff.changedFiles")}</span>
               <span>{changedFilesSummary}</span>
             </div>
             {changedRows.length === 0 && unavailableChangedGroupCount === 0 ? (
               <div className="diff-panel__empty">
-                {pendingChangedGroupCount > 0 ? "Loading changes..." : "No changes"}
+                {pendingChangedGroupCount > 0 ? t("diff.loadingChanges") : t("diff.noChanges")}
               </div>
             ) : (
               <div className="diff-panel__file-list" ref={fileListRef}>
@@ -434,7 +436,7 @@ export function DiffPanel({
                     <div className="file-workbench__change-group" key={group.context.workspace.id}>
                       {showContextStrip ? (
                         <div className="file-workbench__change-heading">
-                          <span>{contextLabel(group.context)}</span>
+                          <span>{contextLabel(group.context, t)}</span>
                           <span>{group.error ? "Unavailable" : group.files.length}</span>
                         </div>
                       ) : null}
@@ -506,10 +508,10 @@ export function DiffPanel({
       <div className="diff-panel__viewer file-workbench__viewer">
         <div className="diff-panel__viewer-header file-workbench__viewer-header">
           <span className="file-workbench__viewer-path">
-            {selectedFile ? formatPathForDisplay(selectedFile.path) : "Select a file"}
+            {selectedFile ? formatPathForDisplay(selectedFile.path) : t("diff.selectFile")}
           </span>
           {selectedFile && panelMode === "changes" ? (
-            <span className="file-workbench__viewer-modes" role="group" aria-label="Viewer mode">
+            <span className="file-workbench__viewer-modes" role="group" aria-label={t("diff.viewerMode")}>
               <button
                 className={viewerMode === "preview" ? "file-workbench__mode file-workbench__mode--active" : "file-workbench__mode"}
                 type="button"
@@ -604,11 +606,12 @@ function renderViewer({
   readonly preview: WorkspaceFilePreview | null;
   readonly diffText: string;
 }) {
+  const t = useT();
   if (!selectedFile) {
-    return <div className="diff-panel__empty">Select a file from the tree or changed files.</div>;
+    return <div className="diff-panel__empty">{t("diff.selectFileHint")}</div>;
   }
   if (viewerLoading) {
-    return <div className="diff-panel__empty">Loading {viewerMode}...</div>;
+    return <div className="diff-panel__empty">{t("diff.loadingChanges")}</div>;
   }
   if (viewerError) {
     return <div className="diff-panel__empty">{viewerError}</div>;
@@ -617,14 +620,14 @@ function renderViewer({
     return diffText ? (
       <InlineDiff diff={diffText} language={extensionToLanguage(selectedFile.path)} />
     ) : (
-      <div className="diff-panel__empty">No diff available for this file.</div>
+      <div className="diff-panel__empty">{t("diff.noDiff")}</div>
     );
   }
   if (!preview) {
-    return <div className="diff-panel__empty">No preview available.</div>;
+    return <div className="diff-panel__empty">{t("diff.noPreview")}</div>;
   }
   if (preview.binary) {
-    return <div className="diff-panel__empty">Binary or directory preview is not available.</div>;
+    return <div className="diff-panel__empty">{t("diff.binaryPreview")}</div>;
   }
   return (
     <pre className="file-workbench__preview" data-testid="file-workbench-preview">
@@ -718,9 +721,9 @@ function formatPathForDisplay(path: string): string {
   return JSON.stringify(path);
 }
 
-function contextLabel(context: FileWorkbenchContext): string {
+function contextLabel(context: FileWorkbenchContext, t: (key: import("./i18n").MessageKey) => string): string {
   if (context.role === "thread") {
-    return "Current thread";
+    return t("diff.currentThread");
   }
   if (context.role === "worktree") {
     return context.worktree?.branchName ?? context.workspace.branchName ?? context.workspace.name;
@@ -728,9 +731,12 @@ function contextLabel(context: FileWorkbenchContext): string {
   return context.workspace.name;
 }
 
-function buildSubtitle(context: FileWorkbenchContext | undefined): string {
+function buildSubtitle(
+  context: FileWorkbenchContext | undefined,
+  t: (key: import("./i18n").MessageKey) => string,
+): string {
   if (!context) {
-    return "No workspace selected";
+    return t("diff.noWorkspaceSelected");
   }
   if (context.role === "worktree") {
     return `Worktree ${context.worktree?.branchName ?? context.workspace.name}`;

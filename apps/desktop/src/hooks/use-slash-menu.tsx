@@ -16,6 +16,7 @@ import {
 import type { PiDesktopApi } from "../ipc";
 import { deriveModelOnboardingState } from "../model-onboarding";
 import type { SettingsSection } from "../settings-view";
+import { useT } from "../i18n";
 
 interface ActiveSlashFlow {
   readonly command: ComposerSlashCommand;
@@ -100,6 +101,7 @@ export interface SlashMenuState {
 }
 
 export function useSlashMenu(params: UseSlashMenuParams): SlashMenuState {
+  const t = useT();
   const {
     composerDraft,
     setComposerDraft,
@@ -136,7 +138,7 @@ export function useSlashMenu(params: UseSlashMenuParams): SlashMenuState {
     activeSlashQuery
       ? buildSlashCommandSections(slashQuery, selectedRuntime, sessionCommands, commandCompatibility, {
           allowTreeCommand,
-        })
+        }, t)
       : [];
   const slashSuggestions = flattenSlashSections(slashSections);
   const exactSlashCommand = slashSuggestions.find((cmd) => isExactSlashCommand(slashQuery, cmd));
@@ -152,12 +154,13 @@ export function useSlashMenu(params: UseSlashMenuParams): SlashMenuState {
   const slashOptions =
     activeSlashOptionCommand?.kind === "model"
       ? buildModelOptions(selectedModelRuntime)
-      : slashOptionsForCommand(activeSlashOptionCommand, selectedRuntime);
+      : slashOptionsForCommand(activeSlashOptionCommand, selectedRuntime, t);
   const activeSlashOptionEmptyState = slashOptionEmptyState(
     activeSlashOptionCommand,
     activeSlashOptionCommand?.kind === "model"
       ? undefined
       : selectedRuntime,
+    t,
   );
   const modelSlashEmptyState =
     activeSlashOptionCommand?.kind === "model" && slashOptions.length === 0
@@ -165,7 +168,7 @@ export function useSlashMenu(params: UseSlashMenuParams): SlashMenuState {
           const state = deriveModelOnboardingState(selectedModelRuntime, {
             provider: undefined,
             modelId: undefined,
-          });
+          }, t);
           return {
             title: state.emptyModelTitle,
             description: state.emptyModelDescription,
