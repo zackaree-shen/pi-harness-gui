@@ -412,13 +412,20 @@ function VirtualizedTranscriptList({
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
 }) {
   const [viewport, setViewport] = useState({ scrollTop: 0, height: 0 });
+  const [paneReady, setPaneReady] = useState(false);
   const previousTotalHeightRef = useRef(0);
   void measurementVersion;
 
   useLayoutEffect(() => {
     const pane = timelinePaneRef.current;
     if (!pane) {
-      return undefined;
+      // The timeline-pane ref callback can run after this child effect on the
+      // first commit, leaving timelinePaneRef.current null. Retry on the next
+      // frame instead of silently dropping the scroll listener — otherwise the
+      // virtualized window never follows scrollTop and the timeline renders the
+      // first rows at a scroll position far down the container (blank area).
+      const id = window.requestAnimationFrame(() => setPaneReady((v) => !v));
+      return () => window.cancelAnimationFrame(id);
     }
 
     const syncViewport = () => {
@@ -442,7 +449,7 @@ function VirtualizedTranscriptList({
       pane.removeEventListener("scroll", syncViewport);
       resizeObserver.disconnect();
     };
-  }, [timelinePaneRef]);
+  }, [timelinePaneRef, paneReady]);
 
   const rowHeights = displayItems.map((item) => measuredHeightsRef.current.get(item.id) ?? estimateTimelineItemHeight(item));
   const rowOffsets: number[] = [];
