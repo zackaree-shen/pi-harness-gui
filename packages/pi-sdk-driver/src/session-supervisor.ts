@@ -84,6 +84,7 @@ import {
   messageText,
   nowIso,
   previewFromSessionInfo,
+  readMessagesFromSessionFile,
   sessionKey,
   shouldTailFromDisk,
   singleFlight,
@@ -387,8 +388,11 @@ export class SessionSupervisor {
       throw new Error(`Session ${sessionKey(sessionRef)} has no tracked session file.`);
     }
 
-    const sessionManager = SessionManager.open(sessionFile);
-    return transcriptFromMessages(sessionManager.buildSessionContext().messages, sessionEntry?.updatedAt);
+    // Read every message entry in file order instead of walking the leaf's
+    // parentId chain via SessionManager. A session file with a broken link
+    // (e.g. a message whose parent was never persisted) would otherwise hide
+    // the whole earlier half of the conversation from the UI.
+    return transcriptFromMessages(readMessagesFromSessionFile(sessionFile), sessionEntry?.updatedAt);
   }
 
   private async resolveSessionFilePath(

@@ -1,4 +1,5 @@
 import { basename } from "node:path";
+import { readFileSync } from "node:fs";
 import type { SessionInfo } from "@earendil-works/pi-coding-agent";
 import type {
   SessionAttachment,
@@ -226,6 +227,40 @@ export function injectFileAttachmentPreamble(
   });
   const block = `${FILE_ATTACHMENT_BLOCK_START}${payload}${FILE_ATTACHMENT_BLOCK_END}`;
   return text ? `${block}\n${text}` : block;
+}
+
+export function readMessagesFromSessionFile(sessionFile: string): readonly unknown[] {
+  const messages: unknown[] = [];
+  let content: string;
+  try {
+    content = readFileSync(sessionFile, "utf8");
+  } catch {
+    return messages;
+  }
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      continue;
+    }
+    let entry: unknown;
+    try {
+      entry = JSON.parse(trimmed);
+    } catch {
+      continue; // tolerate one corrupt line without dropping earlier content
+    }
+    if (!isRecord(entry) || entry.type !== "message") {
+      continue;
+    }
+    const msg = isRecord(entry.message) ? entry.message : {};
+    messages.push({
+      ...msg,
+      ...(typeof entry.id === "string" ? { id: entry.id } : {}),
+      ...(msg.createdAt === undefined && typeof entry.timestamp === "string"
+        ? { createdAt: entry.timestamp }
+        : {}),
+    });
+  }
+  return messages;
 }
 
 export function transcriptFromMessages(messages: readonly unknown[], fallbackTimestamp = nowIso()): SessionTranscriptItem[] {
