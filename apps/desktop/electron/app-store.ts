@@ -1532,8 +1532,24 @@ export class DesktopAppStore implements AppStoreInternals {
       return;
     }
 
-    const transcript = timelineFromDriverTranscript(await this.driver.getTranscript(sessionRef));
-    this.sessionState.loadedTranscriptKeys.add(key);
+    let transcript: TranscriptMessage[];
+    try {
+      transcript = timelineFromDriverTranscript(await this.driver.getTranscript(sessionRef));
+    } catch (error) {
+      // Driver/catalog not ready yet on a cold start. Leave the key unmarked so
+      // a later retry (session event, selection, focus reconcile) repopulates;
+      // otherwise the timeline stays blank while the sidebar keeps updating.
+      this.sessionState.loadedTranscriptKeys.delete(key);
+      throw error;
+    }
+    // Only mark the key loaded when the driver actually returned content. A
+    // cold start can race the driver's catalog/runtime initialization and get
+    // back an empty transcript; caching that would permanently blank the
+    // timeline while the sidebar (snapshot path) keeps updating. Leave it
+    // unmarked so a later retry repopulates it.
+    if (transcript.length > 0) {
+      this.sessionState.loadedTranscriptKeys.add(key);
+    }
     this.sessionState.transcriptCache.set(key, transcript);
     await this.recordSelectedTranscriptFileStat(sessionRef);
   }
