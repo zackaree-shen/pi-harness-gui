@@ -10,7 +10,11 @@ interface SettingsAppearanceSectionProps {
   readonly onSetThemePresetId: (presetId: ThemePresetId) => void;
   readonly enableTransparency: boolean;
   readonly onSetEnableTransparency: (enabled: boolean) => void;
+  readonly uiFontScale: number;
+  readonly onSetUiFontScale: (scale: number) => void;
 }
+
+const FONT_SCALE_OPTIONS = [0.9, 0.95, 1, 1.05, 1.1, 1.15, 1.2] as const;
 
 const THEME_OPTIONS: { mode: ThemeMode; labelKey: "themeSystem" | "themeLight" | "themeDark"; descriptionKey: string }[] = [
   { mode: "system", labelKey: "themeSystem", descriptionKey: "themeSystemDescription" },
@@ -25,6 +29,8 @@ export function SettingsAppearanceSection({
   onSetThemePresetId,
   enableTransparency,
   onSetEnableTransparency,
+  uiFontScale,
+  onSetUiFontScale,
 }: SettingsAppearanceSectionProps) {
   const t = useT();
   return (
@@ -78,6 +84,24 @@ export function SettingsAppearanceSection({
       </SettingsGroup>
 
       <SettingsGroup title={t("settings.appearance.visuals")}>
+        <SettingsRow
+          title={t("settings.appearance.fontSize")}
+          description={t("settings.appearance.fontSizeDescription")}
+        >
+          <div className="settings-pill-row" role="group" aria-label={t("settings.appearance.fontSize")}>
+            {FONT_SCALE_OPTIONS.map((scale) => (
+              <button
+                className={`settings-pill${Math.abs(uiFontScale - scale) < 0.001 ? " settings-pill--active" : ""}`}
+                key={scale}
+                type="button"
+                aria-pressed={Math.abs(uiFontScale - scale) < 0.001}
+                onClick={() => onSetUiFontScale(scale)}
+              >
+                {Math.round(scale * 100)}%
+              </button>
+            ))}
+          </div>
+        </SettingsRow>
         <SettingsRow
           title={t("settings.appearance.windowTransparency")}
           description={t("settings.appearance.windowTransparencyDescription")}

@@ -323,6 +323,8 @@ export interface DesktopAppState {
   readonly themePresetId: ThemePresetId;
   readonly sidebarCollapsed: boolean;
   readonly enableTransparency: boolean;
+  /** Global UI font scale (zoom), 1.0 = 100%. */
+  readonly uiFontScale: number;
   readonly startupDiagnostics: readonly StartupDiagnostic[];
   readonly revision: number;
   readonly lastError?: string;
@@ -373,6 +375,7 @@ export function createEmptyDesktopAppState(): DesktopAppState {
     themePresetId: "default",
     sidebarCollapsed: false,
     enableTransparency: false,
+    uiFontScale: 1,
     startupDiagnostics: [],
     revision: 0,
   };

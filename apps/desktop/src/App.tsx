@@ -114,6 +114,14 @@ export default function App() {
     }
   }, [snapshot?.enableTransparency]);
 
+  // Global UI font scale (zoom). Chromium's CSS zoom keeps layout coherent and
+  // scales text, icons, and spacing together.
+  useEffect(() => {
+    if (snapshot) {
+      document.documentElement.style.zoom = String(snapshot.uiFontScale);
+    }
+  }, [snapshot?.uiFontScale]);
+
   const {
     activeWorktrees,
     linkedWorktreeByWorkspaceId,

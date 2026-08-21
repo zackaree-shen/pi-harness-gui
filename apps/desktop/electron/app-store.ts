@@ -755,6 +755,22 @@ export class DesktopAppStore implements AppStoreInternals {
     return this.emit();
   }
 
+  async setUiFontScale(scale: number): Promise<DesktopAppState> {
+    await this.initialize();
+    const clamped = Math.min(1.6, Math.max(0.7, Math.round(scale * 100) / 100));
+    if (this.state.uiFontScale === clamped) {
+      return structuredClone(this.state);
+    }
+    this.state = {
+      ...this.state,
+      uiFontScale: clamped,
+      lastError: undefined,
+      revision: this.state.revision + 1,
+    };
+    await this.persistUiState();
+    return this.emit();
+  }
+
   async setThemeMode(themeMode: ThemeMode): Promise<DesktopAppState> {
     await this.initialize();
     if (!isThemeMode(themeMode)) {
@@ -1221,6 +1237,7 @@ export class DesktopAppStore implements AppStoreInternals {
       themePresetId: persisted.themePresetId ?? this.state.themePresetId,
       sidebarCollapsed: persisted.sidebarCollapsed ?? this.state.sidebarCollapsed,
       enableTransparency: persisted.enableTransparency ?? this.state.enableTransparency,
+      uiFontScale: persisted.uiFontScale ?? this.state.uiFontScale,
       orchestrationChildren: persisted.orchestrationChildren ?? [],
     };
 
@@ -2659,6 +2676,7 @@ export class DesktopAppStore implements AppStoreInternals {
       themePresetId: this.state.themePresetId,
       sidebarCollapsed: this.state.sidebarCollapsed || undefined,
       enableTransparency: this.state.enableTransparency,
+      uiFontScale: this.state.uiFontScale === 1 ? undefined : this.state.uiFontScale,
       orchestrationChildren: orchestration.toPersistedOrchestrationChildren(this.state.orchestrationChildren),
     };
 

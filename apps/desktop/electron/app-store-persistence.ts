@@ -33,6 +33,7 @@ export interface PersistedUiState {
   readonly sidebarCollapsed?: boolean;
   readonly allowMultiple?: boolean;
   readonly enableTransparency?: boolean;
+  readonly uiFontScale?: number;
   readonly themeMode?: ThemeMode;
   readonly themePresetId?: ThemePresetId;
   readonly orchestrationChildren?: readonly OrchestrationChildThread[];
@@ -86,6 +87,7 @@ export async function readPersistedUiState(uiStateFilePath: string): Promise<Leg
       sidebarCollapsed: typeof candidate.sidebarCollapsed === "boolean" ? candidate.sidebarCollapsed : undefined,
       allowMultiple: typeof candidate.allowMultiple === "boolean" ? candidate.allowMultiple : undefined,
       enableTransparency: typeof candidate.enableTransparency === "boolean" ? candidate.enableTransparency : undefined,
+      uiFontScale: toUiFontScale(candidate.uiFontScale),
       themeMode: toThemeMode(candidate.themeMode),
       themePresetId: toThemePresetId(candidate.themePresetId),
       orchestrationChildren: toPersistedOrchestrationChildren(candidate.orchestrationChildren),
@@ -107,6 +109,15 @@ export async function writePersistedUiState(
     2,
   )}\n`;
   await writeFileAtomicQueued(uiStateFilePath, serialized);
+}
+
+function toUiFontScale(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return undefined;
+  }
+  // Clamp to a sane range so a corrupt persisted value can never zoom the UI
+  // out of control.
+  return Math.min(1.6, Math.max(0.7, Math.round(value * 100) / 100));
 }
 
 function toThemeMode(value: unknown): ThemeMode | undefined {

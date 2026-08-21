@@ -1305,6 +1305,9 @@ app.whenReady().then(async () => {
     }
     return nextState;
   });
+  ipcMain.handle(desktopIpc.setUiFontScale, async (_event, scale: number) => {
+    return store.setUiFontScale(scale);
+  });
   ipcMain.handle(desktopIpc.terminalEnsurePanel, (event, workspaceId: string, terminalScopeId: string, size) => {
     return getTerminalService().ensurePanel(event.sender, workspaceId, terminalScopeId, size);
   });

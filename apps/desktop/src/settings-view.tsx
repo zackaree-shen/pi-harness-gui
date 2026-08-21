@@ -23,6 +23,7 @@ interface SettingsViewProps {
   readonly themeMode: "system" | "light" | "dark";
   readonly themePresetId: ThemePresetId;
   readonly enableTransparency: boolean;
+  readonly uiFontScale: number;
   readonly onSetModelSettingsScopeMode: (mode: ModelSettingsScopeMode) => void;
   readonly onSetDefaultModel: (provider: string, modelId: string) => void;
   readonly onSetThinkingLevel: (thinkingLevel: RuntimeSettingsSnapshot["defaultThinkingLevel"]) => void;
@@ -41,6 +42,7 @@ interface SettingsViewProps {
   readonly onSetThemeMode: (mode: "system" | "light" | "dark") => void;
   readonly onSetThemePresetId: (presetId: ThemePresetId) => void;
   readonly onSetEnableTransparency: (enabled: boolean) => void;
+  readonly onSetUiFontScale: (scale: number) => void;
 }
 
 export function SettingsView({
@@ -55,6 +57,7 @@ export function SettingsView({
   themeMode,
   themePresetId,
   enableTransparency,
+  uiFontScale,
   onSetModelSettingsScopeMode,
   onSetDefaultModel,
   onSetThinkingLevel,
@@ -73,6 +76,7 @@ export function SettingsView({
   onSetThemeMode,
   onSetThemePresetId,
   onSetEnableTransparency,
+  onSetUiFontScale,
 }: SettingsViewProps) {
   const t = useT();
   if (
@@ -113,6 +117,8 @@ export function SettingsView({
               onSetThemePresetId={onSetThemePresetId}
               enableTransparency={enableTransparency}
               onSetEnableTransparency={onSetEnableTransparency}
+              uiFontScale={uiFontScale}
+              onSetUiFontScale={onSetUiFontScale}
             />
           ) : null}
 

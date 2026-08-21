@@ -226,6 +226,8 @@ export const enMessages: DeepStringRecord = {
   "settings.appearance.themeDark": "Dark",
   "settings.appearance.themeDarkDescription": "Always use the dark theme",
   "settings.appearance.visuals": "Visuals",
+  "settings.appearance.fontSize": "Font size",
+  "settings.appearance.fontSizeDescription": "Scale the text and layout of the whole interface.",
   "settings.appearance.windowTransparency": "Window transparency",
   "settings.appearance.windowTransparencyDescription": "Let desktop colors show through supported surfaces.",
   "settings.notifications.title": "Notifications",

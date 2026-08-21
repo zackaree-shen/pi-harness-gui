@@ -241,6 +241,8 @@ export const zhCNMessages = {
       themeDark: "深色",
       themeDarkDescription: "始终使用深色主题",
       visuals: "视觉效果",
+      fontSize: "字体大小",
+      fontSizeDescription: "调整整个界面的文字与界面缩放。",
       windowTransparency: "窗口透明",
       windowTransparencyDescription: "让桌面颜色透过支持的界面显示出来。",
     },

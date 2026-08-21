@@ -390,6 +390,7 @@ export function SecondarySurfaces({
         themeMode={snapshot.themeMode}
         themePresetId={snapshot.themePresetId}
         enableTransparency={snapshot.enableTransparency}
+        uiFontScale={snapshot.uiFontScale}
         onLoginProvider={handleLoginProvider}
         onLogoutProvider={handleLogoutProvider}
         onSetProviderApiKey={handleSetProviderApiKey}
@@ -409,6 +410,9 @@ export function SecondarySurfaces({
         onToggleSkillCommands={handleToggleSkillCommands}
         onSetEnableTransparency={(enabled) => {
           void updateSnapshot(api, setSnapshot, () => api.setEnableTransparency(enabled));
+        }}
+        onSetUiFontScale={(scale) => {
+          void updateSnapshot(api, setSnapshot, () => api.setUiFontScale(scale));
         }}
       />
     </SecondarySurface>
