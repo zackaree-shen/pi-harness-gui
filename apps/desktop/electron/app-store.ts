@@ -1,7 +1,7 @@
 import type { BrowserWindow } from "electron";
-import { readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import {
   applyHostUiRequestToExtensionUiState,
   type GenerateThreadTitleOptions,
@@ -3348,6 +3348,107 @@ function resolveGlobalSettingsPath(): string {
       : override
     : join(homedir(), ".pi", "agent");
   return join(agentDir, "settings.json");
+}
+
+/* ── Permission-system mode (pi-permission-system extension) ───────────────── */
+
+export type PermissionMode = "yolo" | "ask" | "read-only" | "workspace";
+
+function resolvePermissionSystemConfigPath(): string {
+  const override = process.env.PI_CODING_AGENT_DIR;
+  const agentDir = override
+    ? override.startsWith("~")
+      ? join(homedir(), override.slice(1))
+      : override
+    : join(homedir(), ".pi", "agent");
+  return join(agentDir, "extensions", "pi-permission-system", "config.json");
+}
+
+interface PermissionSystemConfig {
+  readonly yoloMode?: boolean;
+  readonly permission?: Record<string, unknown>;
+  readonly [key: string]: unknown;
+}
+
+async function readPermissionSystemConfig(): Promise<PermissionSystemConfig | undefined> {
+  const path = resolvePermissionSystemConfigPath();
+  try {
+    const raw = await readFile(path, "utf8");
+    const parsed = JSON.parse(raw) as unknown;
+    return typeof parsed === "object" && parsed !== null ? (parsed as PermissionSystemConfig) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Infer the active permission mode from the extension config. */
+export async function getPermissionMode(): Promise<PermissionMode> {
+  const config = await readPermissionSystemConfig();
+  if (!config) {
+    return "ask";
+  }
+  if (config.yoloMode === true) {
+    return "yolo";
+  }
+  const p = config.permission ?? {};
+  if (p.write === "deny" && p.edit === "deny" && p.read === "allow") {
+    return "read-only";
+  }
+  if (p.external_directory === "ask") {
+    return "workspace";
+  }
+  return "ask";
+}
+
+const PERMISSION_MODE_TEMPLATES: Record<Exclude<PermissionMode, "yolo">, Record<string, unknown>> = {
+  "ask": {
+    "*": "ask",
+    "read": "allow",
+    "bash": {
+      "*": "ask",
+      "git status": "allow",
+      "git diff": "allow",
+    },
+    "external_directory": "ask",
+  },
+  "read-only": {
+    "read": "allow",
+    "write": "deny",
+    "edit": "deny",
+    "bash": {
+      "git status": "allow",
+      "git diff": "allow",
+      "*": "deny",
+    },
+  },
+  "workspace": {
+    "path": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+    },
+    "external_directory": "ask",
+  },
+};
+
+/**
+ * Persist a permission mode to the pi-permission-system extension config.
+ * Other keys (debugLog, permissionReviewLog, …) are preserved. The extension
+ * picks the change up on the next session reload.
+ */
+export async function setPermissionMode(mode: PermissionMode): Promise<PermissionMode> {
+  const path = resolvePermissionSystemConfigPath();
+  const existing = (await readPermissionSystemConfig()) ?? {};
+  const next: PermissionSystemConfig = {
+    ...existing,
+    yoloMode: mode === "yolo" ? true : false,
+    ...(mode !== "yolo" ? { permission: PERMISSION_MODE_TEMPLATES[mode] } : {}),
+  };
+  const tmpPath = `${path}.tmp`;
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(tmpPath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+  await rename(tmpPath, path);
+  return mode;
 }
 
 async function readProjectModelSettingsFile(workspacePath: string): Promise<Record<string, unknown>> {

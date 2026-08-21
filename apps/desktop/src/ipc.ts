@@ -109,6 +109,8 @@ export const desktopIpc = {
   setIntegratedTerminalShell: "pi-gui:set-integrated-terminal-shell",
   setEnableTransparency: "pi-gui:set-enable-transparency",
   setUiFontScale: "pi-gui:set-ui-font-scale",
+  getPermissionMode: "pi-gui:get-permission-mode",
+  setPermissionMode: "pi-gui:set-permission-mode",
   terminalEnsurePanel: "pi-gui:terminal-ensure-panel",
   terminalCreateSession: "pi-gui:terminal-create-session",
   terminalSetActiveSession: "pi-gui:terminal-set-active-session",
@@ -362,6 +364,8 @@ export interface PiDesktopApi {
   setIntegratedTerminalShell(shell: string): Promise<DesktopAppState>;
   setEnableTransparency(enabled: boolean): Promise<DesktopAppState>;
   setUiFontScale(scale: number): Promise<DesktopAppState>;
+  getPermissionMode(): Promise<string>;
+  setPermissionMode(mode: string): Promise<string>;
   setThemePresetId(presetId: ThemePresetId): Promise<DesktopAppState>;
   ensureTerminalPanel(
     workspaceId: string,

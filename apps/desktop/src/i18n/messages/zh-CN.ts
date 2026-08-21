@@ -495,6 +495,14 @@ export const zhCNMessages = {
     thinkingLevel: "推理级别",
   },
 
+  permission: {
+    modeYolo: "YOLO",
+    modeAsk: "询问",
+    modeReadOnly: "只读",
+    modeWorkspace: "工作区可写",
+    applyHint: "已切换，重启会话后生效",
+  },
+
   modelOnboarding: {
     noModelsAvailable: "没有可用模型",
     pickAModel: "选择一个模型",

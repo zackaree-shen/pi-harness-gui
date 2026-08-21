@@ -223,6 +223,8 @@ contextBridge.exposeInMainWorld("piApp", {
     ipcRenderer.invoke(desktopIpc.setEnableTransparency, enabled) as Promise<DesktopAppState>,
   setUiFontScale: (scale: number) =>
     ipcRenderer.invoke(desktopIpc.setUiFontScale, scale) as Promise<DesktopAppState>,
+  getPermissionMode: () => ipcRenderer.invoke(desktopIpc.getPermissionMode) as Promise<string>,
+  setPermissionMode: (mode: string) => ipcRenderer.invoke(desktopIpc.setPermissionMode, mode) as Promise<string>,
   setThemePresetId: (presetId: ThemePresetId) =>
     ipcRenderer.invoke(desktopIpc.setThemePresetId, presetId) as Promise<DesktopAppState>,
   ensureTerminalPanel: (workspaceId: string, terminalScopeId: string, size?: Partial<TerminalSize>) =>

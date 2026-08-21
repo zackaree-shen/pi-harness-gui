@@ -19,7 +19,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { augmentPosixPath } from "../scripts/augment-path.cjs";
-import { DesktopAppStore, type DesktopAppViewState } from "./app-store";
+import { DesktopAppStore, getPermissionMode, setPermissionMode, type DesktopAppViewState } from "./app-store";
 import {
   createOrchestrationRuntimeExtension,
   createOrchestrationRuntimeTools,
@@ -1307,6 +1307,11 @@ app.whenReady().then(async () => {
   });
   ipcMain.handle(desktopIpc.setUiFontScale, async (_event, scale: number) => {
     return store.setUiFontScale(scale);
+  });
+  ipcMain.handle(desktopIpc.getPermissionMode, async () => getPermissionMode());
+  ipcMain.handle(desktopIpc.setPermissionMode, async (_event, mode: string) => {
+    const valid = mode === "yolo" || mode === "ask" || mode === "read-only" || mode === "workspace";
+    return setPermissionMode(valid ? mode : "ask");
   });
   ipcMain.handle(desktopIpc.terminalEnsurePanel, (event, workspaceId: string, terminalScopeId: string, size) => {
     return getTerminalService().ensurePanel(event.sender, workspaceId, terminalScopeId, size);

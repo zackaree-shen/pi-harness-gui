@@ -14,7 +14,8 @@ import { ModelOnboardingNoticeBanner } from "./model-onboarding-notice";
 import type { ModelOnboardingState, ModelOnboardingSettingsSection } from "./model-onboarding";
 import { ModelSelector } from "./model-selector";
 import { useT } from "./i18n";
-import { ExtensionDock, type ExtensionDockModel } from "./extension-session-ui";
+import { PermissionModeBadge } from "./permission-mode";
+import type { ExtensionDockModel } from "./extension-session-ui";
 
 interface ComposerPanelProps {
   readonly selectedSession: SessionRecord;
@@ -188,13 +189,7 @@ export function ComposerPanel({
                     onSetModel={onSetModel}
                     onSetThinking={onSetThinking}
                   />
-                  {extensionDock && onToggleExtensionDock ? (
-                    <ExtensionDock
-                      dock={extensionDock}
-                      expanded={extensionDockExpanded}
-                      onToggle={onToggleExtensionDock}
-                    />
-                  ) : null}
+                  <PermissionModeBadge disabled={selectedSession.status === "running"} />
                 </div>
                 <div className="composer__actions">
                   <button

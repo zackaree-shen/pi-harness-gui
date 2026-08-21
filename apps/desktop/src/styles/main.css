@@ -2303,6 +2303,105 @@
   word-break: break-word;
 }
 
+/* Permission-mode pill (composer hint row) */
+.permission-mode {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.permission-mode__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  background: var(--surface-muted);
+  color: var(--muted-strong);
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.permission-mode__toggle:hover {
+  background: var(--overlay-hover);
+}
+
+.permission-mode__toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.permission-mode__label {
+  font-size: 12px;
+  font-weight: 560;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.permission-mode__chevron {
+  width: 14px;
+  height: 14px;
+  display: inline-flex;
+  color: var(--muted-soft);
+}
+
+.permission-mode__chevron svg {
+  width: 14px;
+  height: 14px;
+}
+
+.permission-mode__menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  min-width: 160px;
+  padding: 4px;
+  background: var(--surface-raised, var(--surface-overlay));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
+}
+
+.permission-mode__item {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.permission-mode__item:hover {
+  background: var(--overlay-hover);
+}
+
+.permission-mode__item--active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.permission-mode__notice {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  padding: 6px 10px;
+  background: var(--surface-raised, var(--surface-overlay));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--muted-strong);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .extension-dialog-backdrop {
   position: fixed;
   inset: 0;

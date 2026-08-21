@@ -454,6 +454,12 @@ export const enMessages: DeepStringRecord = {
   "modelSelector.tryDifferent": "Try a different filter.",
   "modelSelector.thinkingLevel": "Thinking Level",
 
+  "permission.modeYolo": "YOLO",
+  "permission.modeAsk": "Ask",
+  "permission.modeReadOnly": "Read-only",
+  "permission.modeWorkspace": "Workspace writable",
+  "permission.applyHint": "Mode saved — takes effect after the session reloads",
+
   "modelOnboarding.noModelsAvailable": "No models available",
   "modelOnboarding.pickAModel": "Pick a model",
   "modelOnboarding.noDefaultModelSet": "No default model set",
