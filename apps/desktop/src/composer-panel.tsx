@@ -56,6 +56,7 @@ interface ComposerPanelProps {
   readonly modelOnboarding: ModelOnboardingState;
   readonly onOpenModelSettings: (section: ModelOnboardingSettingsSection) => void;
   readonly onSubmit: () => void;
+  readonly stopRequested?: boolean;
   readonly showMentionMenu: boolean;
   readonly mentionOptions: readonly MentionOption[];
   readonly selectedMentionIndex: number;
@@ -106,6 +107,7 @@ export function ComposerPanel({
   modelOnboarding,
   onOpenModelSettings,
   onSubmit,
+  stopRequested = false,
   showMentionMenu,
   mentionOptions,
   selectedMentionIndex,
@@ -120,7 +122,7 @@ export function ComposerPanel({
   // composer has a draft — otherwise typing a follow-up turns the button into
   // "Send" and the Stop affordance silently disappears ("Stop doesn't work").
   // Queue a message mid-run with Ctrl/Cmd+Enter instead.
-  const primaryActionIsStop = selectedSession.status === "running";
+  const primaryActionIsStop = selectedSession.status === "running" && !stopRequested;
 
   return (
     <footer className="composer">

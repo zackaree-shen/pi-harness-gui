@@ -58,7 +58,22 @@ export function useSessionComposer(params: UseSessionComposerParams) {
   } = params;
 
   const [attachmentsClearedOnSubmit, setAttachmentsClearedOnSubmit] = useState(false);
+  const [stopRequested, setStopRequested] = useState(false);
   const composerAttachments = attachmentsClearedOnSubmit ? [] : (snapshot?.composerAttachments ?? []);
+
+  /**
+   * Fire cancelCurrentRun and flip the local stopRequested flag so the Stop
+   * affordance disappears immediately. The main process also emits an optimistic
+   * idle state before awaiting the driver abort, so the UI never waits on the
+   * (potentially slow) runtime interruption.
+   */
+  const stopCurrentRun = () => {
+    if (!api || !selectedSession) {
+      return;
+    }
+    setStopRequested(true);
+    void updateSnapshot(api, setSnapshot, () => api.cancelCurrentRun());
+  };
 
   const submitComposerDraft = (options: { readonly deliverAs?: "steer" | "followUp" } = {}) => {
     if (!api || !selectedSession) {
@@ -70,7 +85,7 @@ export function useSessionComposer(params: UseSessionComposerParams) {
     // draft in the composer (a follow-up is queued via Ctrl/Cmd+Enter instead).
     // Keep the draft untouched so the user can continue editing after stopping.
     if (selectedSession.status === "running") {
-      void updateSnapshot(api, setSnapshot, () => api.cancelCurrentRun());
+      stopCurrentRun();
       return;
     }
 
@@ -239,6 +254,13 @@ export function useSessionComposer(params: UseSessionComposerParams) {
       return;
     }
 
+    // Esc stops the running session — natural interruption gesture.
+    if (event.key === "Escape" && selectedSession?.status === "running") {
+      event.preventDefault();
+      stopCurrentRun();
+      return;
+    }
+
     if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing && selectedSession?.status === "running") {
       event.preventDefault();
       submitComposerDraft({ deliverAs: (event.metaKey || event.ctrlKey) ? "steer" : "followUp" });
@@ -263,6 +285,8 @@ export function useSessionComposer(params: UseSessionComposerParams) {
   return {
     composerAttachments,
     submitComposerDraft,
+    stopCurrentRun,
+    stopRequested,
     handlePickAttachments,
     handleRemoveAttachment,
     handleEditQueuedMessage,

@@ -406,6 +406,8 @@ export default function App() {
     handleComposerDrop,
     handlePastedClipboardImage,
     handleComposerKeyDown,
+    stopCurrentRun,
+    stopRequested,
   } = useSessionComposer({
     api,
     snapshot,
@@ -513,6 +515,22 @@ export default function App() {
           event.preventDefault();
           handleCommand(command);
         }
+        return;
+      }
+      // Esc stops the running session (global, not just composer-focused).
+      if (
+        event.key === "Escape" &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.shiftKey &&
+        selectedSession?.status === "running" &&
+        !treeModalState.open &&
+        !forkModalState.open &&
+        !activeExtensionDialog
+      ) {
+        event.preventDefault();
+        stopCurrentRun();
         return;
       }
       // Cmd+F toggles thread search
@@ -981,6 +999,7 @@ export default function App() {
                 openSettings(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id, section)
               }
               onSubmit={submitComposerDraft}
+              stopRequested={stopRequested}
               runningLabel={runningLabel}
               selectedSession={selectedSession}
               lastError={snapshot.lastError}

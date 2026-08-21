@@ -440,11 +440,23 @@ export async function setSessionThinkingLevel(
 export async function cancelCurrentRun(store: AppStoreInternals): Promise<DesktopAppState> {
   await store.initialize();
   const sessionRef = store.selectedSessionRef();
+  console.log(`[stop-trace] main: cancelCurrentRun enter, session=${sessionRef?.sessionId.slice(0, 8) ?? "none"}`);
   if (!sessionRef) {
     return store.emit();
   }
 
   return store.withErrorHandling(async () => {
+    // Push the idle state to the UI FIRST so the Stop affordance disappears
+    // immediately; the driver abort runs in the background and its own
+    // sessionUpdated event is idempotent. This keeps the cancel from being
+    // serialized behind a backlog of agent events (which can delay the IPC
+    // round-trip by many seconds).
+    store.state = {
+      ...store.state,
+      lastError: undefined,
+      revision: store.state.revision + 1,
+    };
+    store.emit();
     await store.driver.cancelCurrentRun(sessionRef);
     clearActiveAssistantMessage(store.sessionState.activeAssistantMessageBySession, sessionRef);
     store.sessionState.sessionErrorsBySession.delete(sessionKey(sessionRef));
