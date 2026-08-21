@@ -1313,6 +1313,18 @@ app.whenReady().then(async () => {
     const valid = mode === "yolo" || mode === "ask" || mode === "read-only" || mode === "workspace";
     return setPermissionMode(valid ? mode : "ask");
   });
+  ipcMain.handle(desktopIpc.reloadSession, async (event) => {
+    return runWindowScopedForEvent(event, async () => {
+      const sessionRef = store.selectedSessionRef();
+      if (!sessionRef) {
+        return store.emit();
+      }
+      store.clearExtensionUiForSession(sessionRef);
+      await store.driver.reloadSession(sessionRef);
+      await store.refreshSessionCommandsFor(sessionRef);
+      return store.emit();
+    });
+  });
   ipcMain.handle(desktopIpc.terminalEnsurePanel, (event, workspaceId: string, terminalScopeId: string, size) => {
     return getTerminalService().ensurePanel(event.sender, workspaceId, terminalScopeId, size);
   });

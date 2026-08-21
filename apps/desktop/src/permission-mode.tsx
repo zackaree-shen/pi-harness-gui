@@ -65,8 +65,13 @@ export function PermissionModeBadge({ disabled }: { readonly disabled?: boolean 
     if (!api?.setPermissionMode) {
       return;
     }
-    void api.setPermissionMode(next).then(() => {
+    void api.setPermissionMode(next).then(async () => {
       setMode(next);
+      // Reload the session so the permission extension picks the new policy up
+      // immediately — no session restart needed.
+      if (api.reloadSession) {
+        await api.reloadSession().catch(() => undefined);
+      }
       setSavedNotice(t("permission.applyHint"));
       window.setTimeout(() => setSavedNotice(null), 4000);
     });

@@ -458,7 +458,7 @@ export const enMessages: DeepStringRecord = {
   "permission.modeAsk": "Ask",
   "permission.modeReadOnly": "Read-only",
   "permission.modeWorkspace": "Workspace writable",
-  "permission.applyHint": "Mode saved — takes effect after the session reloads",
+  "permission.applyHint": "Mode saved and applied live",
 
   "modelOnboarding.noModelsAvailable": "No models available",
   "modelOnboarding.pickAModel": "Pick a model",

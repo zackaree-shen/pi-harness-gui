@@ -500,7 +500,7 @@ export const zhCNMessages = {
     modeAsk: "询问",
     modeReadOnly: "只读",
     modeWorkspace: "工作区可写",
-    applyHint: "已切换，重启会话后生效",
+    applyHint: "已切换并实时生效",
   },
 
   modelOnboarding: {

@@ -111,6 +111,7 @@ export const desktopIpc = {
   setUiFontScale: "pi-gui:set-ui-font-scale",
   getPermissionMode: "pi-gui:get-permission-mode",
   setPermissionMode: "pi-gui:set-permission-mode",
+  reloadSession: "pi-gui:reload-session",
   terminalEnsurePanel: "pi-gui:terminal-ensure-panel",
   terminalCreateSession: "pi-gui:terminal-create-session",
   terminalSetActiveSession: "pi-gui:terminal-set-active-session",
@@ -366,6 +367,7 @@ export interface PiDesktopApi {
   setUiFontScale(scale: number): Promise<DesktopAppState>;
   getPermissionMode(): Promise<string>;
   setPermissionMode(mode: string): Promise<string>;
+  reloadSession(): Promise<DesktopAppState>;
   setThemePresetId(presetId: ThemePresetId): Promise<DesktopAppState>;
   ensureTerminalPanel(
     workspaceId: string,
