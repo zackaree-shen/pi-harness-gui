@@ -150,6 +150,7 @@ export const desktopIpc = {
   getResolvedTheme: "pi-gui:get-resolved-theme",
   setThemeMode: "pi-gui:set-theme-mode",
   setThemePresetId: "pi-gui:set-theme-preset-id",
+  setThemeSkinId: "pi-gui:set-theme-skin-id",
   themeChanged: "pi-gui:theme-changed",
   ping: "app:ping",
   openExternal: "app:open-external",
@@ -369,6 +370,7 @@ export interface PiDesktopApi {
   setPermissionMode(mode: string): Promise<string>;
   reloadSession(): Promise<DesktopAppState>;
   setThemePresetId(presetId: ThemePresetId): Promise<DesktopAppState>;
+  setThemeSkinId(skinId: string): Promise<DesktopAppState>;
   ensureTerminalPanel(
     workspaceId: string,
     terminalScopeId: string,

@@ -36,6 +36,7 @@ export interface PersistedUiState {
   readonly uiFontScale?: number;
   readonly themeMode?: ThemeMode;
   readonly themePresetId?: ThemePresetId;
+  readonly themeSkinId?: string;
   readonly orchestrationChildren?: readonly OrchestrationChildThread[];
 }
 
@@ -90,6 +91,7 @@ export async function readPersistedUiState(uiStateFilePath: string): Promise<Leg
       uiFontScale: toUiFontScale(candidate.uiFontScale),
       themeMode: toThemeMode(candidate.themeMode),
       themePresetId: toThemePresetId(candidate.themePresetId),
+      themeSkinId: typeof candidate.themeSkinId === "string" && candidate.themeSkinId.length > 0 ? candidate.themeSkinId : undefined,
       orchestrationChildren: toPersistedOrchestrationChildren(candidate.orchestrationChildren),
       composerAttachmentsBySession: toObjectArrayRecord(candidate.composerAttachmentsBySession),
       transcripts: toObjectArrayRecord(candidate.transcripts),

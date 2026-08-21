@@ -1,13 +1,16 @@
 import type { ThemeMode, ThemePresetId } from "./desktop-state";
 import { SettingsGroup, SettingsRow } from "./settings-utils";
 import { themePresets } from "./theme-presets";
+import { THEME_SKINS, type ThemeSkinId } from "./theme-skins";
 import { useT } from "./i18n";
 
 interface SettingsAppearanceSectionProps {
   readonly themeMode: ThemeMode;
   readonly themePresetId: ThemePresetId;
+  readonly themeSkinId: string;
   readonly onSetThemeMode: (mode: ThemeMode) => void;
   readonly onSetThemePresetId: (presetId: ThemePresetId) => void;
+  readonly onSetThemeSkinId: (skinId: string) => void;
   readonly enableTransparency: boolean;
   readonly onSetEnableTransparency: (enabled: boolean) => void;
   readonly uiFontScale: number;
@@ -25,8 +28,10 @@ const THEME_OPTIONS: { mode: ThemeMode; labelKey: "themeSystem" | "themeLight" |
 export function SettingsAppearanceSection({
   themeMode,
   themePresetId,
+  themeSkinId,
   onSetThemeMode,
   onSetThemePresetId,
+  onSetThemeSkinId,
   enableTransparency,
   onSetEnableTransparency,
   uiFontScale,
@@ -35,6 +40,32 @@ export function SettingsAppearanceSection({
   const t = useT();
   return (
     <>
+      <SettingsGroup title={t("settings.appearance.skins")} description={t("settings.appearance.skinsDescription")}>
+        <div className="theme-preset-grid">
+          {THEME_SKINS.map((skin) => (
+            <label
+              className={`theme-preset-card${themeSkinId === skin.id ? " theme-preset-card--active" : ""}`}
+              key={skin.id}
+            >
+              <input
+                checked={themeSkinId === skin.id}
+                name="theme-skin"
+                type="radio"
+                onChange={() => onSetThemeSkinId(skin.id)}
+              />
+              <span className="theme-preset-card__preview" aria-hidden="true">
+                {skin.swatches.map((swatch) => (
+                  <span className="theme-preset-card__swatch" key={swatch} style={{ background: swatch }} />
+                ))}
+              </span>
+              <span className="theme-preset-card__body">
+                <span className="theme-preset-card__title">{t(skinTitleKey(skin.id))}</span>
+                <span className="theme-preset-card__description">{t(skinDescriptionKey(skin.id))}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </SettingsGroup>
       <SettingsGroup title={t("settings.appearance.themePreset")}>
         <div className="theme-preset-grid">
           {themePresets.map((preset) => (
@@ -116,6 +147,14 @@ export function SettingsAppearanceSection({
       </SettingsGroup>
     </>
   );
+}
+
+function skinTitleKey(id: ThemeSkinId): import("./i18n").MessageKey {
+  return id === "xp-luna" ? "settings.appearance.skinXpLuna" : "settings.appearance.skinOfficial";
+}
+
+function skinDescriptionKey(id: ThemeSkinId): import("./i18n").MessageKey {
+  return id === "xp-luna" ? "settings.appearance.skinXpLunaDescription" : "settings.appearance.skinOfficialDescription";
 }
 
 function themeOptionTitle(

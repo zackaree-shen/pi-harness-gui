@@ -807,6 +807,21 @@ export class DesktopAppStore implements AppStoreInternals {
     return this.emit();
   }
 
+  async setThemeSkinId(themeSkinId: string): Promise<DesktopAppState> {
+    await this.initialize();
+    if (this.state.themeSkinId === themeSkinId) {
+      return structuredClone(this.state);
+    }
+    this.state = {
+      ...this.state,
+      themeSkinId,
+      lastError: undefined,
+      revision: this.state.revision + 1,
+    };
+    await this.persistUiState();
+    return this.emit();
+  }
+
   async setModelSettingsScopeMode(modelSettingsScopeMode: ModelSettingsScopeMode): Promise<DesktopAppState> {
     await this.initialize();
     if (this.state.modelSettingsScopeMode === modelSettingsScopeMode) {
@@ -1235,6 +1250,7 @@ export class DesktopAppStore implements AppStoreInternals {
       workspaceOrder: persisted.workspaceOrder ?? [],
       themeMode: persisted.themeMode ?? this.state.themeMode,
       themePresetId: persisted.themePresetId ?? this.state.themePresetId,
+      themeSkinId: persisted.themeSkinId ?? this.state.themeSkinId,
       sidebarCollapsed: persisted.sidebarCollapsed ?? this.state.sidebarCollapsed,
       enableTransparency: persisted.enableTransparency ?? this.state.enableTransparency,
       uiFontScale: persisted.uiFontScale ?? this.state.uiFontScale,
@@ -2674,6 +2690,7 @@ export class DesktopAppStore implements AppStoreInternals {
       appGlobalModelSettings: hasStoredModelSettings(this.state.globalModelSettings) ? this.state.globalModelSettings : undefined,
       themeMode: this.state.themeMode,
       themePresetId: this.state.themePresetId,
+      themeSkinId: this.state.themeSkinId === "official" ? undefined : this.state.themeSkinId,
       sidebarCollapsed: this.state.sidebarCollapsed || undefined,
       enableTransparency: this.state.enableTransparency,
       uiFontScale: this.state.uiFontScale === 1 ? undefined : this.state.uiFontScale,

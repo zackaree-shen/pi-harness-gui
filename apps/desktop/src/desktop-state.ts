@@ -321,6 +321,8 @@ export interface DesktopAppState {
   readonly globalModelSettings: ModelSettingsSnapshot;
   readonly themeMode: ThemeMode;
   readonly themePresetId: ThemePresetId;
+  /** Full-UI skin (official / xp-luna). */
+  readonly themeSkinId: string;
   readonly sidebarCollapsed: boolean;
   readonly enableTransparency: boolean;
   /** Global UI font scale (zoom), 1.0 = 100%. */
@@ -373,6 +375,7 @@ export function createEmptyDesktopAppState(): DesktopAppState {
     },
     themeMode: "system",
     themePresetId: "default",
+    themeSkinId: "official",
     sidebarCollapsed: false,
     enableTransparency: false,
     uiFontScale: 1,

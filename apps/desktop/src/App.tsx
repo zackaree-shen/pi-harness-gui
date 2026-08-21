@@ -43,6 +43,7 @@ import { TreeModal } from "./tree-modal";
 import { ForkModal } from "./fork-modal";
 import { getEffectiveModelRuntime } from "./model-settings";
 import { applyThemePresetToRoot } from "./theme-presets";
+import { applyThemeSkinToRoot, isThemeSkinId } from "./theme-skins";
 import { deriveWorkspaceContext } from "./workspace-context";
 import { useTreeForkModals } from "./hooks/use-tree-fork-modals";
 import { useComposerDraftSync } from "./hooks/use-composer-draft-sync";
@@ -107,6 +108,13 @@ export default function App() {
   useEffect(() => {
     applyThemePresetToRoot(document.documentElement, snapshot?.themePresetId ?? "default", resolvedTheme);
   }, [resolvedTheme, snapshot?.themePresetId]);
+
+  // Full-UI skin (official / xp-luna …) layers on top of the theme preset.
+  useEffect(() => {
+    if (snapshot && isThemeSkinId(snapshot.themeSkinId)) {
+      applyThemeSkinToRoot(document.documentElement, snapshot.themeSkinId);
+    }
+  }, [snapshot?.themeSkinId, snapshot?.themePresetId, resolvedTheme]);
 
   useEffect(() => {
     if (snapshot) {

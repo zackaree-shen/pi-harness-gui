@@ -1156,6 +1156,9 @@ app.whenReady().then(async () => {
   ipcMain.handle(desktopIpc.setThemePresetId, (event, presetId: ThemePresetId) =>
     runWindowScopedForEvent(event, () => store.setThemePresetId(presetId)),
   );
+  ipcMain.handle(desktopIpc.setThemeSkinId, (event, skinId: string) =>
+    runWindowScopedForEvent(event, () => store.setThemeSkinId(skinId)),
+  );
   ipcMain.handle(desktopIpc.openExternal, (_event, url: string) => {
     const parsed = parseExternalWebUrl(url);
     if (!parsed) {

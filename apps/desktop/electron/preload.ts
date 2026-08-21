@@ -228,6 +228,8 @@ contextBridge.exposeInMainWorld("piApp", {
   reloadSession: () => ipcRenderer.invoke(desktopIpc.reloadSession) as Promise<DesktopAppState>,
   setThemePresetId: (presetId: ThemePresetId) =>
     ipcRenderer.invoke(desktopIpc.setThemePresetId, presetId) as Promise<DesktopAppState>,
+  setThemeSkinId: (skinId: string) =>
+    ipcRenderer.invoke(desktopIpc.setThemeSkinId, skinId) as Promise<DesktopAppState>,
   ensureTerminalPanel: (workspaceId: string, terminalScopeId: string, size?: Partial<TerminalSize>) =>
     ipcRenderer.invoke(desktopIpc.terminalEnsurePanel, workspaceId, terminalScopeId, size) as Promise<TerminalPanelSnapshot>,
   createTerminalSession: (workspaceId: string, terminalScopeId: string, size?: Partial<TerminalSize>) =>

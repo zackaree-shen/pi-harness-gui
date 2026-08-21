@@ -22,6 +22,7 @@ interface SettingsViewProps {
   readonly integratedTerminalShell: string;
   readonly themeMode: "system" | "light" | "dark";
   readonly themePresetId: ThemePresetId;
+  readonly themeSkinId: string;
   readonly enableTransparency: boolean;
   readonly uiFontScale: number;
   readonly onSetModelSettingsScopeMode: (mode: ModelSettingsScopeMode) => void;
@@ -41,6 +42,7 @@ interface SettingsViewProps {
   readonly onOpenSystemNotificationSettings: () => void;
   readonly onSetThemeMode: (mode: "system" | "light" | "dark") => void;
   readonly onSetThemePresetId: (presetId: ThemePresetId) => void;
+  readonly onSetThemeSkinId: (skinId: string) => void;
   readonly onSetEnableTransparency: (enabled: boolean) => void;
   readonly onSetUiFontScale: (scale: number) => void;
 }
@@ -56,6 +58,7 @@ export function SettingsView({
   integratedTerminalShell,
   themeMode,
   themePresetId,
+  themeSkinId,
   enableTransparency,
   uiFontScale,
   onSetModelSettingsScopeMode,
@@ -75,6 +78,7 @@ export function SettingsView({
   onOpenSystemNotificationSettings,
   onSetThemeMode,
   onSetThemePresetId,
+  onSetThemeSkinId,
   onSetEnableTransparency,
   onSetUiFontScale,
 }: SettingsViewProps) {
@@ -115,6 +119,8 @@ export function SettingsView({
               themePresetId={themePresetId}
               onSetThemeMode={onSetThemeMode}
               onSetThemePresetId={onSetThemePresetId}
+              themeSkinId={themeSkinId}
+              onSetThemeSkinId={onSetThemeSkinId}
               enableTransparency={enableTransparency}
               onSetEnableTransparency={onSetEnableTransparency}
               uiFontScale={uiFontScale}

@@ -389,6 +389,7 @@ export function SecondarySurfaces({
         integratedTerminalShell={snapshot.integratedTerminalShell}
         themeMode={snapshot.themeMode}
         themePresetId={snapshot.themePresetId}
+        themeSkinId={snapshot.themeSkinId}
         enableTransparency={snapshot.enableTransparency}
         uiFontScale={snapshot.uiFontScale}
         onLoginProvider={handleLoginProvider}
@@ -406,6 +407,9 @@ export function SecondarySurfaces({
         onSetScopedModelPatterns={handleSetScopedModelPatterns}
         onSetThemeMode={handleSetThemeMode}
         onSetThemePresetId={handleSetThemePresetId}
+        onSetThemeSkinId={(skinId) => {
+          void updateSnapshot(api, setSnapshot, () => api.setThemeSkinId(skinId));
+        }}
         onSetThinkingLevel={handleSetThinkingLevel}
         onToggleSkillCommands={handleToggleSkillCommands}
         onSetEnableTransparency={(enabled) => {
