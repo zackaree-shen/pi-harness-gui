@@ -219,9 +219,6 @@ export function ComposerSurface({
           ))}
         </div>
       ) : null}
-      {extensionDock && onToggleExtensionDock ? (
-        <ExtensionDock dock={extensionDock} expanded={extensionDockExpanded} onToggle={onToggleExtensionDock} />
-      ) : null}
       {lastError ? (
         <div className="composer__error error-banner" data-testid="composer-error-banner">
           {lastError}

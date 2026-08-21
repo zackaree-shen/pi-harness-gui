@@ -2227,26 +2227,30 @@
 }
 
 .extension-dock {
-  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  margin: 0;
 }
 
 .extension-dock--expanded {
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .extension-dock__toggle {
-  width: 100%;
-  min-height: 34px;
-  display: flex;
+  width: auto;
+  min-height: 24px;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 7px 10px;
-  border-radius: var(--radius-xl);
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--line);
   background: var(--surface-muted);
   color: var(--muted-strong);
   text-align: left;
+  font-size: 12px;
 }
 
 .extension-dock__toggle:hover {
@@ -2255,33 +2259,43 @@
 
 .extension-dock__summary {
   min-width: 0;
-  flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 560;
   letter-spacing: -0.01em;
+  max-width: 180px;
 }
 
 .extension-dock__chevron {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   flex: 0 0 auto;
   color: var(--muted-soft);
 }
 
 .extension-dock__chevron svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
+/* Expanded body pops above the composer row like a mini panel. */
 .extension-dock__body {
-  margin: 8px 0 0;
-  padding: 10px 12px 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  min-width: min(420px, 60vw);
+  margin: 0;
+  padding: 10px 12px;
   max-height: min(220px, 28vh);
   overflow: auto;
   color: var(--muted-strong);
+  background: var(--surface-raised, var(--surface-overlay));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-pop, 0 8px 24px rgba(0, 0, 0, 0.18));
   font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.5;
