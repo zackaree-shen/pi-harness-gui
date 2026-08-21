@@ -31,5 +31,10 @@
     "apps/*",
     "packages/*",
     "video"
-  ]
+  ],
+  "pnpm": {
+    "patchedDependencies": {
+      "@earendil-works/pi-agent-core@0.80.6": "patches/@earendil-works__pi-agent-core@0.80.6.patch"
+    }
+  }
 }

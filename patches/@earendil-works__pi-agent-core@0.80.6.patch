@@ -1,0 +1,40 @@
+diff --git a/dist/agent.js b/dist/agent.js
+index c98a07ac413ceda0e4dfedc8f71514965c589af2..fc416647df913e5c0ee66feac2994527f577719d 100644
+--- a/dist/agent.js
++++ b/dist/agent.js
+@@ -111,6 +111,7 @@ export class Agent {
+     toolExecution;
+     constructor(options = {}) {
+         this._state = createMutableAgentState(options.initialState);
++        this._pendingAbort = false;
+         this.convertToLlm = options.convertToLlm ?? defaultConvertToLlm;
+         this.transformContext = options.transformContext;
+         this.streamFn = options.streamFn ?? streamSimple;
+@@ -196,7 +197,15 @@ export class Agent {
+     }
+     /** Abort the current run, if one is active. */
+     abort() {
+-        this.activeRun?.abortController.abort();
++        if (this.activeRun) {
++            this.activeRun.abortController.abort();
++        }
++        else {
++            // No run has started yet (e.g. Stop clicked right after Send). The
++            // abort would be silently lost and the pending prompt would still
++            // start. Remember it so the next run begins already-cancelled.
++            this._pendingAbort = true;
++        }
+     }
+     /**
+      * Resolve when the current run and all awaited event listeners have finished.
+@@ -317,6 +326,10 @@ export class Agent {
+             throw new Error("Agent is already processing.");
+         }
+         const abortController = new AbortController();
++        if (this._pendingAbort) {
++            this._pendingAbort = false;
++            abortController.abort();
++        }
+         let resolvePromise = () => { };
+         const promise = new Promise((resolve) => {
+             resolvePromise = resolve;
