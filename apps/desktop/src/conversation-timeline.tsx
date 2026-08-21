@@ -413,6 +413,7 @@ function VirtualizedTranscriptList({
 }) {
   const [viewport, setViewport] = useState({ scrollTop: 0, height: 0 });
   const [paneReady, setPaneReady] = useState(false);
+  const paneRetryCountRef = useRef(0);
   const previousTotalHeightRef = useRef(0);
   void measurementVersion;
 
@@ -424,9 +425,15 @@ function VirtualizedTranscriptList({
       // frame instead of silently dropping the scroll listener — otherwise the
       // virtualized window never follows scrollTop and the timeline renders the
       // first rows at a scroll position far down the container (blank area).
+      // Bound the retries so an unfixable null ref can never spin a rAF loop.
+      if (paneRetryCountRef.current >= 30) {
+        return undefined;
+      }
+      paneRetryCountRef.current += 1;
       const id = window.requestAnimationFrame(() => setPaneReady((v) => !v));
       return () => window.cancelAnimationFrame(id);
     }
+    paneRetryCountRef.current = 0;
 
     const syncViewport = () => {
       const nextScrollTop = pane.scrollTop;

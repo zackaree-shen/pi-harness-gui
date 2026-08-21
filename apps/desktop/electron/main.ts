@@ -753,11 +753,29 @@ function attachStatePublisher(window: BrowserWindow): void {
   // brings the same webContents back — re-subscribe on recovery so the reloaded
   // window resumes live state pushes instead of going permanently stale.
   let recovering = false;
-  window.webContents.on("render-process-gone", () => {
+  let recoveryTimer: NodeJS.Timeout | undefined;
+  window.webContents.on("render-process-gone", (_event, details) => {
+    if (details.reason === "clean-exit") {
+      return;
+    }
     recovering = true;
     stopPublishing();
+    // Auto-recover instead of leaving a blank window: reload after a short
+    // settle so the renderer has time to fully exit before we re-create it.
+    if (recoveryTimer !== undefined) {
+      clearTimeout(recoveryTimer);
+    }
+    recoveryTimer = setTimeout(() => {
+      if (!window.isDestroyed() && !window.webContents.isDestroyed()) {
+        void window.webContents.reload();
+      }
+    }, 1200);
   });
   window.webContents.on("did-finish-load", () => {
+    if (recoveryTimer !== undefined) {
+      clearTimeout(recoveryTimer);
+      recoveryTimer = undefined;
+    }
     if (!recovering) {
       return;
     }
@@ -767,7 +785,12 @@ function attachStatePublisher(window: BrowserWindow): void {
     publishStateToWindow(window);
     void publishSelectedTranscriptToWindow(window);
   });
-  window.once("closed", stopPublishing);
+  window.once("closed", () => {
+    if (recoveryTimer !== undefined) {
+      clearTimeout(recoveryTimer);
+    }
+    stopPublishing();
+  });
 }
 
 function attachViewedSessionTracking(window: BrowserWindow): void {
