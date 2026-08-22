@@ -783,28 +783,28 @@
   line-height: 1.6;
 }
 
-.diff-line {
+.diff-inline .diff-line {
   display: flex;
   padding: 0 12px 0 0;
 }
 
-.diff-line--added {
+.diff-inline .diff-line--added {
   background: var(--diff-added-bg);
   color: var(--diff-added-ink);
 }
 
-.diff-line--removed {
+.diff-inline .diff-line--removed {
   background: var(--diff-removed-bg);
   color: var(--diff-removed-ink);
 }
 
-.diff-line--header {
+.diff-inline .diff-line--header {
   background: var(--diff-header-bg);
   color: var(--muted-soft);
   font-style: italic;
 }
 
-.diff-line__number {
+.diff-inline .diff-line__number {
   display: inline-block;
   min-width: 40px;
   padding: 0 8px;
@@ -814,7 +814,7 @@
   flex-shrink: 0;
 }
 
-.diff-line__content {
+.diff-inline .diff-line__content {
   white-space: pre-wrap;
   word-break: break-word;
 }
