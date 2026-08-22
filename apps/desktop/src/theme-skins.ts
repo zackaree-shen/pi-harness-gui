@@ -44,6 +44,10 @@ export const THEME_SKINS: readonly ThemeSkin[] = [
       "--button-primary-border": "#3a7d22",
       "--button-primary-ink": "#ffffff",
       "--button-primary-hover-bg": "#5cb23b",
+      /* XP system font stack (Tahoma UI / SimSun CJK). */
+      "--font-ui": 'Tahoma, "Microsoft Sans Serif", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif',
+      "--font-sans": 'Tahoma, "Microsoft Sans Serif", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+      "--font-mono": '"Courier New", "Sarasa Mono SC", Consolas, monospace',
     },
     css: `
 /* ── Windows XP (Luna) full-UI skin ───────────────────────────── */
@@ -147,6 +151,117 @@ body {
   background: linear-gradient(180deg, #7cc454 0%, #4c9c2e 45%, #2f7a1c 100%);
   border-color: #2e6d18;
   color: #ffffff;
+}
+
+/* ── Icons ──────────────────────────────────────────────────────
+   pi-gui icons are inline SVGs using stroke="currentColor"; the
+   presentation attribute can be overridden per-chrome via CSS, so
+   the skin recolors them XP-style without touching icons.tsx. */
+
+/* Title-bar icons: light ice-blue on the Luna blue gradient. */
+.topbar svg path[stroke="currentColor"],
+.topbar svg rect[stroke="currentColor"],
+.topbar svg circle[stroke="currentColor"] {
+  stroke: #dbe7fb;
+}
+/* Sidebar chrome icons: XP deep blue. */
+.sidebar__nav-item svg path[stroke="currentColor"],
+.sidebar__nav-item svg rect[stroke="currentColor"],
+.sidebar__nav-item svg circle[stroke="currentColor"],
+.sidebar__footer svg path[stroke="currentColor"] {
+  stroke: #0a246a;
+}
+/* Session list icons: XP navy. */
+.session-row svg path[stroke="currentColor"],
+.session-row svg rect[stroke="currentColor"],
+.session-row svg circle[stroke="currentColor"] {
+  stroke: #1a3c6e;
+}
+/* Settings pills icons: match pill ink. */
+.settings-pill svg path[stroke="currentColor"] {
+  stroke: #0a1f33;
+}
+.settings-pill--active svg path[stroke="currentColor"] {
+  stroke: #ffffff;
+}
+
+/* ── Start button ───────────────────────────────────────────────
+   The "New thread" button doubles as the XP Start button: green
+   glossy pill with the four-color flag (XP logo) leading the text. */
+.sidebar__new {
+  background: linear-gradient(180deg, #7cc454 0%, #4c9c2e 45%, #2f7a1c 100%);
+  border: 1px solid #2e6d18;
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 1px 1px rgba(0, 40, 10, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 1px 2px rgba(0, 40, 10, 0.35);
+}
+.sidebar__new:hover:not(:disabled) {
+  background: linear-gradient(180deg, #8ed267 0%, #5cb23b 45%, #3a8a24 100%);
+  border-color: #245c12;
+}
+/* Hide the stock plus icon; the flag replaces it. */
+.sidebar__new > svg {
+  display: none;
+}
+.sidebar__new::before {
+  content: "";
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='0.5' y='0.5' width='15' height='15' rx='1.5' fill='%23f0f6fd' stroke='%237a9cc0' stroke-width='1'/><path d='M2.5 3.2 C4 2.5 5.5 2.4 7 3 V7.4 C5.5 6.8 4 6.9 2.5 7.6 Z' fill='%23e33e2b'/><path d='M8 3 C9.5 2.4 11 2.5 12.5 3.2 V7.6 C11 6.9 9.5 6.8 8 7.4 Z' fill='%234c9c2e'/><path d='M2.5 8.4 C4 7.7 5.5 7.6 7 8.2 V12.6 C5.5 12 4 12.1 2.5 12.8 Z' fill='%232158d0'/><path d='M8 8.2 C9.5 7.6 11 7.7 12.5 8.4 V12.8 C11 12.1 9.5 12 8 12.6 Z' fill='%23f4b400'/></svg>") center / contain no-repeat;
+  border-radius: 2px;
+}
+
+/* ── XP scrollbars ───────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 15px;
+  height: 15px;
+}
+::-webkit-scrollbar-track {
+  background: #eaf2fc;
+  border-left: 1px solid #b8d0ea;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #cfe2f8 0%, #a8c8ec 45%, #8fb6e4 100%);
+  border: 1px solid #6f94c4;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #ddebfb 0%, #bcd8f2 45%, #a3c6ea 100%);
+}
+::-webkit-scrollbar-corner {
+  background: #eaf2fc;
+}
+
+/* ── XP form controls ────────────────────────────────────────── */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #2158d0;
+}
+input[type="checkbox"] {
+  border-radius: 2px;
+}
+
+/* ── Status dots → XP square indicators ──────────────────────── */
+.session-row__status {
+  border-radius: 2px;
+}
+
+/* ── Settings pills: XP control-panel flavor ──────────────────── */
+.settings-pill {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 30, 70, 0.15);
+}
+.settings-pill--active {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 1px 2px rgba(0, 40, 10, 0.35);
+}
+
+/* ── Rounded corner reduction: XP squares things off ─────────── */
+.composer__editor,
+.composer__surface,
+.thread-search-bar__input,
+.settings-search {
+  border-radius: 4px;
 }
 `,
   },
