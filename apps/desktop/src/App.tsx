@@ -45,6 +45,7 @@ import { getEffectiveModelRuntime } from "./model-settings";
 import { applyThemePresetToRoot } from "./theme-presets";
 import { applyThemeSkinToRoot, isThemeSkinId } from "./theme-skins";
 import { deriveWorkspaceContext } from "./workspace-context";
+import { resolveRepoWorkspaceId } from "./workspace-roots";
 import { useTreeForkModals } from "./hooks/use-tree-fork-modals";
 import { useComposerDraftSync } from "./hooks/use-composer-draft-sync";
 import { useSessionComposer } from "./hooks/use-session-composer";
@@ -56,6 +57,7 @@ export default function App() {
   const [settingsSection, setSettingsSection] = useState<SettingsSection>("general");
   const [settingsWorkspaceId, setSettingsWorkspaceId] = useState("");
   const [skillsWorkspaceId, setSkillsWorkspaceId] = useState("");
+  const [gitWorkspaceId, setGitWorkspaceId] = useState("");
   const [extensionsWorkspaceId, setExtensionsWorkspaceId] = useState("");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [dockExpandedBySession, setDockExpandedBySession] = useState<Record<string, boolean>>({});
@@ -632,7 +634,10 @@ export default function App() {
 
   const showTerminalTakeover = isTerminalVisibleForSelectedThread && isTerminalTakeoverForSelectedThread && Boolean(selectedWorkspace);
   const secondarySurfaceView =
-    snapshot.activeView === "settings" || snapshot.activeView === "skills" || snapshot.activeView === "extensions"
+    snapshot.activeView === "settings" ||
+    snapshot.activeView === "skills" ||
+    snapshot.activeView === "git" ||
+    snapshot.activeView === "extensions"
       ? snapshot.activeView
       : null;
   const mainClassName = [
@@ -677,6 +682,20 @@ export default function App() {
       setSkillsWorkspaceId(nextWorkspaceId);
     }
     setActiveView("skills");
+  };
+
+  const openGit = (workspaceId?: string) => {
+    const selectedRootId = selectedWorkspace
+      ? resolveRepoWorkspaceId(snapshot?.workspaces ?? [], selectedWorkspace.id) ?? selectedWorkspace.id
+      : undefined;
+    const nextWorkspaceId =
+      workspaceId && rootWorkspaceOptions.some((workspace) => workspace.id === workspaceId)
+        ? workspaceId
+        : gitWorkspaceId || selectedRootId || rootWorkspaceOptions[0]?.id || "";
+    if (nextWorkspaceId) {
+      setGitWorkspaceId(nextWorkspaceId);
+    }
+    setActiveView("git");
   };
 
   const openExtensions = (workspaceId?: string) => {
@@ -783,10 +802,13 @@ export default function App() {
         onSelectSettingsWorkspace={setSettingsWorkspaceId}
         skillsWorkspaceId={skillsWorkspaceId}
         onSelectSkillsWorkspace={setSkillsWorkspaceId}
+        gitWorkspaceId={gitWorkspaceId}
+        onSelectGitWorkspace={setGitWorkspaceId}
         extensionsWorkspaceId={extensionsWorkspaceId}
         onSelectExtensionsWorkspace={setExtensionsWorkspaceId}
         onBack={() => setActiveView("threads")}
         onTrySkill={handleTrySkill}
+        resolvedTheme={resolvedTheme}
       />
     );
   }
@@ -818,6 +840,7 @@ export default function App() {
           onNewThread={() => newThread.openSurface(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
           onSetActiveView={setActiveView}
           onOpenSkills={openSkills}
+          onOpenGit={openGit}
           onOpenExtensions={openExtensions}
           onOpenSettings={openSettings}
           onArchiveSession={handleArchiveSession}

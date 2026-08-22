@@ -8,6 +8,7 @@ import {
   type DesktopNotificationPermissionStatus,
 } from "../ipc";
 import { SkillsView } from "../skills-view";
+import { GitView } from "../git-view";
 import { ExtensionsView } from "../extensions-view";
 import { SettingsView, type SettingsSection } from "../settings-view";
 import { SecondarySurface } from "../secondary-surface";
@@ -40,7 +41,7 @@ interface SecondarySurfacesProps {
   readonly api: NonNullable<typeof window.piApp>;
   readonly snapshot: DesktopAppState;
   readonly setSnapshot: Dispatch<SetStateAction<DesktopAppState | null>>;
-  readonly activeView: Extract<AppView, "settings" | "skills" | "extensions">;
+  readonly activeView: Extract<AppView, "settings" | "skills" | "git" | "extensions">;
   readonly rootWorkspaceOptions: readonly WorkspaceRecord[];
   readonly settingsSection: SettingsSection;
   readonly onSelectSettingsSection: (section: SettingsSection) => void;
@@ -48,10 +49,13 @@ interface SecondarySurfacesProps {
   readonly onSelectSettingsWorkspace: (workspaceId: string) => void;
   readonly skillsWorkspaceId: string;
   readonly onSelectSkillsWorkspace: (workspaceId: string) => void;
+  readonly gitWorkspaceId: string;
+  readonly onSelectGitWorkspace: (workspaceId: string) => void;
   readonly extensionsWorkspaceId: string;
   readonly onSelectExtensionsWorkspace: (workspaceId: string) => void;
   readonly onBack: () => void;
   readonly onTrySkill: (command: string) => void;
+  readonly resolvedTheme: "light" | "dark";
 }
 
 export function SecondarySurfaces({
@@ -66,10 +70,13 @@ export function SecondarySurfaces({
   onSelectSettingsWorkspace,
   skillsWorkspaceId,
   onSelectSkillsWorkspace,
+  gitWorkspaceId,
+  onSelectGitWorkspace,
   extensionsWorkspaceId,
   onSelectExtensionsWorkspace,
   onBack,
   onTrySkill,
+  resolvedTheme,
 }: SecondarySurfacesProps) {
   const t = useT();
   const navItems = settingsNav.map((item) => ({
@@ -83,6 +90,11 @@ export function SecondarySurfaces({
   const settingsWorkspace = settingsWorkspaceId
     ? rootWorkspaceOptions.find((workspace) => workspace.id === settingsWorkspaceId)
     : undefined;
+  // Fall back to the first root workspace when none was picked yet, so the Git
+  // view is usable immediately (skills/settings keep their explicit-picker UX).
+  const gitWorkspace = gitWorkspaceId
+    ? rootWorkspaceOptions.find((workspace) => workspace.id === gitWorkspaceId)
+    : rootWorkspaceOptions[0];
   const skillsWorkspace = skillsWorkspaceId
     ? rootWorkspaceOptions.find((workspace) => workspace.id === skillsWorkspaceId)
     : undefined;
@@ -312,6 +324,29 @@ export function SecondarySurfaces({
             )
           }
         />
+      </SecondarySurface>
+    );
+  }
+
+  if (activeView === "git") {
+    return (
+      <SecondarySurface onBack={onBack} testId="git-surface" title={t("sidebar.git")}>
+        <div className="surface-toolbar">
+          <label className="surface-toolbar__field">
+            <span>Workspace</span>
+            <select
+              value={gitWorkspace?.id ?? ""}
+              onChange={(event) => onSelectGitWorkspace(event.target.value)}
+            >
+              {rootWorkspaceOptions.map((workspace) => (
+                <option key={workspace.id} value={workspace.id}>
+                  {workspace.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <GitView api={api} workspaceId={gitWorkspace?.id} resolvedTheme={resolvedTheme} />
       </SecondarySurface>
     );
   }

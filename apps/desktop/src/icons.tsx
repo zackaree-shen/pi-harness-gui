@@ -309,6 +309,22 @@ export function ExtensionIcon() {
   );
 }
 
+export function GitIcon() {
+  return (
+    <Icon>
+      <circle cx="6" cy="5" r="1.9" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="14" cy="7" r="1.9" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="6" cy="15" r="1.9" stroke="currentColor" strokeWidth="1.3" />
+      <path
+        d="M6 6.9v6.2M6 10c0-2.4 1.7-3.3 4.1-3.3h1.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.3"
+      />
+    </Icon>
+  );
+}
+
 export function RefreshIcon() {
   return (
     <Icon>

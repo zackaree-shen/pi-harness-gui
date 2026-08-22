@@ -14,7 +14,7 @@ import {
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { AppView, SessionRecord, WorkspaceRecord, WorktreeRecord } from "./desktop-state";
-import { ArchiveIcon, ChevronDownIcon, ExtensionIcon, FolderIcon, PinIcon, PlusIcon, RestoreIcon, SettingsIcon, SkillIcon, WorktreeIcon } from "./icons";
+import { ArchiveIcon, ChevronDownIcon, ExtensionIcon, FolderIcon, GitIcon, PinIcon, PlusIcon, RestoreIcon, SettingsIcon, SkillIcon, WorktreeIcon } from "./icons";
 import type { PiDesktopApi } from "./ipc";
 import { formatRelativeTime } from "./string-utils";
 import type { WorkspaceMenuState } from "./hooks/use-workspace-menu";
@@ -43,6 +43,7 @@ interface SidebarProps {
   readonly onNewThread: () => void;
   readonly onSetActiveView: (view: AppView) => void;
   readonly onOpenSkills: (workspaceId?: string) => void;
+  readonly onOpenGit: (workspaceId?: string) => void;
   readonly onOpenExtensions: (workspaceId?: string) => void;
   readonly onOpenSettings: (workspaceId?: string) => void;
   readonly onArchiveSession: (target: { workspaceId: string; sessionId: string }) => void;
@@ -70,6 +71,7 @@ export function Sidebar(props: SidebarProps) {
     onNewThread,
     onSetActiveView,
     onOpenSkills,
+    onOpenGit,
     onOpenExtensions,
     onOpenSettings,
     onArchiveSession,
@@ -237,6 +239,14 @@ export function Sidebar(props: SidebarProps) {
           >
             <SkillIcon />
             <span>{t("sidebar.skills")}</span>
+          </button>
+          <button
+            className="sidebar__nav-item"
+            type="button"
+            onClick={() => onOpenGit(selectedWorkspace?.rootWorkspaceId ?? selectedWorkspace?.id)}
+          >
+            <GitIcon />
+            <span>{t("sidebar.git")}</span>
           </button>
           <button
             className="sidebar__nav-item"
