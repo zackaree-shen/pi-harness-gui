@@ -148,6 +148,10 @@ export const desktopIpc = {
   getChangedFiles: "pi-gui:get-changed-files",
   getFileDiff: "pi-gui:get-file-diff",
   stageFile: "pi-gui:stage-file",
+  getGitLog: "pi-gui:get-git-log",
+  getGitCommitDetail: "pi-gui:get-git-commit-detail",
+  getGitCommitFileDiff: "pi-gui:get-git-commit-file-diff",
+  getGitBlame: "pi-gui:get-git-blame",
   getThemeMode: "pi-gui:get-theme-mode",
   getResolvedTheme: "pi-gui:get-resolved-theme",
   setThemeMode: "pi-gui:set-theme-mode",
@@ -198,6 +202,75 @@ export type ChangedFilesResult =
   | {
       readonly state: "unavailable";
       readonly error: ChangedFilesError;
+    };
+
+export interface GitDataError {
+  readonly code: string;
+  readonly message: string;
+}
+
+export interface GitLogCommit {
+  readonly sha: string;
+  readonly parents: readonly string[];
+  readonly authorName: string;
+  readonly authorEmail: string;
+  readonly authorTimestamp: number;
+  readonly subject: string;
+  readonly decorations: readonly string[];
+}
+
+export type GitLogResult =
+  | {
+      readonly state: "ok";
+      readonly commits: readonly GitLogCommit[];
+    }
+  | {
+      readonly state: "unavailable";
+      readonly error: GitDataError;
+    };
+
+export interface GitCommitFileEntry {
+  readonly path: string;
+  readonly oldPath?: string;
+  readonly additions: number | null;
+  readonly deletions: number | null;
+  readonly binary: boolean;
+}
+
+export type GitCommitDetailResult =
+  | {
+      readonly state: "ok";
+      readonly sha: string;
+      readonly authorName: string;
+      readonly authorEmail: string;
+      readonly authorTimestamp: number;
+      readonly subject: string;
+      readonly body: string;
+      readonly files: readonly GitCommitFileEntry[];
+    }
+  | {
+      readonly state: "unavailable";
+      readonly error: GitDataError;
+    };
+
+export interface GitBlameLine {
+  readonly sha: string;
+  readonly authorName: string;
+  readonly authorTimestamp: number;
+  readonly summary: string;
+  readonly origLine: number;
+  readonly finalLine: number;
+  readonly lineText: string;
+}
+
+export type GitBlameResult =
+  | {
+      readonly state: "ok";
+      readonly lines: readonly GitBlameLine[];
+    }
+  | {
+      readonly state: "unavailable";
+      readonly error: GitDataError;
     };
 
 export interface WorkspaceFilePreview {
@@ -426,6 +499,10 @@ export interface PiDesktopApi {
   getChangedFiles(workspaceId: string): Promise<ChangedFilesResult>;
   getFileDiff(workspaceId: string, filePath: string): Promise<string>;
   stageFile(workspaceId: string, filePath: string, stagingSourcePath?: string): Promise<void>;
+  getGitLog(workspaceId: string, limit?: number): Promise<GitLogResult>;
+  getGitCommitDetail(workspaceId: string, sha: string): Promise<GitCommitDetailResult>;
+  getGitCommitFileDiff(workspaceId: string, sha: string, filePath: string): Promise<string>;
+  getGitBlame(workspaceId: string, filePath: string, ref?: string): Promise<GitBlameResult>;
   toggleWindowMaximize(): Promise<void>;
   openExternal(url: string): Promise<void>;
   getThemeMode(): Promise<"system" | "light" | "dark">;

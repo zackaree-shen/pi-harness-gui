@@ -6,6 +6,9 @@ import {
   type CustomProviderProbeInput,
   type CustomProviderProbeResult,
   type ChangedFilesResult,
+  type GitLogResult,
+  type GitCommitDetailResult,
+  type GitBlameResult,
   type DesktopNotificationPermissionStatus,
   type WorkspaceFilePreview,
   type PiDesktopCommand,
@@ -308,6 +311,14 @@ contextBridge.exposeInMainWorld("piApp", {
     ipcRenderer.invoke(desktopIpc.getFileDiff, workspaceId, filePath) as Promise<string>,
   stageFile: (workspaceId: string, filePath: string, stagingSourcePath?: string) =>
     ipcRenderer.invoke(desktopIpc.stageFile, workspaceId, filePath, stagingSourcePath) as Promise<void>,
+  getGitLog: (workspaceId: string, limit?: number) =>
+    ipcRenderer.invoke(desktopIpc.getGitLog, workspaceId, limit) as Promise<GitLogResult>,
+  getGitCommitDetail: (workspaceId: string, sha: string) =>
+    ipcRenderer.invoke(desktopIpc.getGitCommitDetail, workspaceId, sha) as Promise<GitCommitDetailResult>,
+  getGitCommitFileDiff: (workspaceId: string, sha: string, filePath: string) =>
+    ipcRenderer.invoke(desktopIpc.getGitCommitFileDiff, workspaceId, sha, filePath) as Promise<string>,
+  getGitBlame: (workspaceId: string, filePath: string, ref?: string) =>
+    ipcRenderer.invoke(desktopIpc.getGitBlame, workspaceId, filePath, ref) as Promise<GitBlameResult>,
   toggleWindowMaximize: () => ipcRenderer.invoke(desktopIpc.toggleWindowMaximize) as Promise<void>,
   openExternal: (url: string) => ipcRenderer.invoke(desktopIpc.openExternal, url) as Promise<void>,
   getThemeMode: () => ipcRenderer.invoke(desktopIpc.getThemeMode) as Promise<"system" | "light" | "dark">,

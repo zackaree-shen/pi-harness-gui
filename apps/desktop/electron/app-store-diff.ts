@@ -128,7 +128,7 @@ export async function stageFile(
   }
 }
 
-function executeGitCommand(
+export function executeGitCommand(
   args: readonly string[],
   options: GitCommandOptions,
 ): Promise<GitCommandResult> {

@@ -27,6 +27,12 @@ import {
 } from "./orchestration-runtime";
 import * as orchestrationTools from "./app-store-orchestration";
 import { getChangedFiles, getFileDiff, stageFile } from "./app-store-diff";
+import {
+  getGitBlame,
+  getGitCommitDetail,
+  getGitCommitFileDiff,
+  getGitLog,
+} from "./app-store-git";
 import { listWorkspaceFiles, readWorkspaceFile } from "./app-store-files";
 import { MAIN_DEV_RELOAD_MARKER } from "./dev-reload-main-probe";
 import { NotificationManager } from "./notification-manager";
@@ -44,6 +50,9 @@ import {
   type CustomProviderConfig,
   type CustomProviderProbeInput,
   type CustomProviderProbeResult,
+  type GitBlameResult,
+  type GitCommitDetailResult,
+  type GitLogResult,
 } from "../src/ipc";
 import { SUPPORTED_COMPOSER_IMAGE_TYPES } from "../src/composer-attachments";
 import type {
@@ -1515,6 +1524,58 @@ app.whenReady().then(async () => {
       await stageFile(workspacePath, filePath, { sourcePath: stagingSourcePath });
     },
   );
+  ipcMain.handle(desktopIpc.getGitLog, async (_event, workspaceId: string, limit?: number) => {
+    const workspacePath = store.getWorkspacePath(workspaceId);
+    if (!workspacePath) {
+      return {
+        state: "unavailable",
+        error: {
+          code: "workspace-unavailable",
+          message: "Git history is unavailable because this workspace could not be found.",
+        },
+      } satisfies GitLogResult;
+    }
+    // Clamp the caller-supplied limit so a compromised renderer cannot pull
+    // unbounded history into memory.
+    const clampedLimit = Math.min(Math.max(1, Math.trunc(limit ?? 500)), 2000);
+    return getGitLog(workspacePath, clampedLimit);
+  });
+  ipcMain.handle(desktopIpc.getGitCommitDetail, async (_event, workspaceId: string, sha: string) => {
+    const workspacePath = store.getWorkspacePath(workspaceId);
+    if (!workspacePath) {
+      return {
+        state: "unavailable",
+        error: {
+          code: "workspace-unavailable",
+          message: "Commit details are unavailable because this workspace could not be found.",
+        },
+      } satisfies GitCommitDetailResult;
+    }
+    return getGitCommitDetail(workspacePath, sha);
+  });
+  ipcMain.handle(
+    desktopIpc.getGitCommitFileDiff,
+    async (_event, workspaceId: string, sha: string, filePath: string) => {
+      const workspacePath = store.getWorkspacePath(workspaceId);
+      if (!workspacePath) {
+        return "";
+      }
+      return getGitCommitFileDiff(workspacePath, sha, filePath);
+    },
+  );
+  ipcMain.handle(desktopIpc.getGitBlame, async (_event, workspaceId: string, filePath: string, ref?: string) => {
+    const workspacePath = store.getWorkspacePath(workspaceId);
+    if (!workspacePath) {
+      return {
+        state: "unavailable",
+        error: {
+          code: "workspace-unavailable",
+          message: "Git blame is unavailable because this workspace could not be found.",
+        },
+      } satisfies GitBlameResult;
+    }
+    return getGitBlame(workspacePath, filePath, ref);
+  });
   ipcMain.handle(desktopIpc.toggleWindowMaximize, (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);
     if (!window) {
