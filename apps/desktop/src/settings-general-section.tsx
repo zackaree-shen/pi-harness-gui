@@ -11,6 +11,10 @@ interface SettingsGeneralSectionProps {
   readonly onSetModelSettingsScopeMode: (mode: ModelSettingsScopeMode) => void;
   readonly onSetIntegratedTerminalShell: (shellPath: string) => void;
   readonly onToggleSkillCommands: (enabled: boolean) => void;
+  readonly hideThinking: boolean;
+  readonly onSetHideThinking: (hide: boolean) => void;
+  readonly collapseThinkingByDefault: boolean;
+  readonly onSetCollapseThinkingByDefault: (collapse: boolean) => void;
 }
 
 export function SettingsGeneralSection({
@@ -20,6 +24,10 @@ export function SettingsGeneralSection({
   onSetModelSettingsScopeMode,
   onSetIntegratedTerminalShell,
   onToggleSkillCommands,
+  hideThinking,
+  onSetHideThinking,
+  collapseThinkingByDefault,
+  onSetCollapseThinkingByDefault,
 }: SettingsGeneralSectionProps) {
   const t = useT();
   const language = useLanguage();
@@ -93,6 +101,27 @@ export function SettingsGeneralSection({
             onChange={(event) => onToggleSkillCommands(event.target.checked)}
           />
         </SettingsRow>
+        <SettingsRow title={t("settings.general.hideThinking")} description={t("settings.general.hideThinkingDescription")}>
+          <input
+            aria-label={t("settings.general.hideThinking")}
+            checked={hideThinking}
+            type="checkbox"
+            onChange={(event) => onSetHideThinking(event.target.checked)}
+          />
+        </SettingsRow>
+        {!hideThinking ? (
+          <SettingsRow
+            title={t("settings.general.collapseThinkingByDefault")}
+            description={t("settings.general.collapseThinkingByDefaultDescription")}
+          >
+            <input
+              aria-label={t("settings.general.collapseThinkingByDefault")}
+              checked={collapseThinkingByDefault}
+              type="checkbox"
+              onChange={(event) => onSetCollapseThinkingByDefault(event.target.checked)}
+            />
+          </SettingsRow>
+        ) : null}
         <SettingsRow title={t("settings.general.terminalShell")} description={t("settings.general.terminalShellDescription")}>
           <input
             aria-label={t("settings.general.terminalShell")}

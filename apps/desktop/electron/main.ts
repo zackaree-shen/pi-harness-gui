@@ -1311,6 +1311,12 @@ app.whenReady().then(async () => {
   ipcMain.handle(desktopIpc.setUiFontScale, async (_event, scale: number) => {
     return store.setUiFontScale(scale);
   });
+  ipcMain.handle(desktopIpc.setHideThinking, async (_event, hide: boolean) => {
+    return store.setHideThinking(hide);
+  });
+  ipcMain.handle(desktopIpc.setCollapseThinkingByDefault, async (_event, collapse: boolean) => {
+    return store.setCollapseThinkingByDefault(collapse);
+  });
   ipcMain.handle(desktopIpc.getPermissionMode, async () => getPermissionMode());
   ipcMain.handle(desktopIpc.setPermissionMode, async (_event, mode: string) => {
     const valid = mode === "yolo" || mode === "ask" || mode === "read-only" || mode === "workspace";

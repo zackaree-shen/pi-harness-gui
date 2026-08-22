@@ -755,6 +755,36 @@ export class DesktopAppStore implements AppStoreInternals {
     return this.emit();
   }
 
+  async setHideThinking(hide: boolean): Promise<DesktopAppState> {
+    await this.initialize();
+    if (this.state.hideThinking === hide) {
+      return structuredClone(this.state);
+    }
+    this.state = {
+      ...this.state,
+      hideThinking: hide,
+      lastError: undefined,
+      revision: this.state.revision + 1,
+    };
+    await this.persistUiState();
+    return this.emit();
+  }
+
+  async setCollapseThinkingByDefault(collapse: boolean): Promise<DesktopAppState> {
+    await this.initialize();
+    if (this.state.collapseThinkingByDefault === collapse) {
+      return structuredClone(this.state);
+    }
+    this.state = {
+      ...this.state,
+      collapseThinkingByDefault: collapse,
+      lastError: undefined,
+      revision: this.state.revision + 1,
+    };
+    await this.persistUiState();
+    return this.emit();
+  }
+
   async setUiFontScale(scale: number): Promise<DesktopAppState> {
     await this.initialize();
     const clamped = Math.min(1.6, Math.max(0.7, Math.round(scale * 100) / 100));
@@ -1254,6 +1284,8 @@ export class DesktopAppStore implements AppStoreInternals {
       sidebarCollapsed: persisted.sidebarCollapsed ?? this.state.sidebarCollapsed,
       enableTransparency: persisted.enableTransparency ?? this.state.enableTransparency,
       uiFontScale: persisted.uiFontScale ?? this.state.uiFontScale,
+      hideThinking: persisted.hideThinking ?? this.state.hideThinking,
+      collapseThinkingByDefault: persisted.collapseThinkingByDefault ?? this.state.collapseThinkingByDefault,
       orchestrationChildren: persisted.orchestrationChildren ?? [],
     };
 
@@ -2694,6 +2726,8 @@ export class DesktopAppStore implements AppStoreInternals {
       sidebarCollapsed: this.state.sidebarCollapsed || undefined,
       enableTransparency: this.state.enableTransparency,
       uiFontScale: this.state.uiFontScale === 1 ? undefined : this.state.uiFontScale,
+      hideThinking: this.state.hideThinking || undefined,
+      collapseThinkingByDefault: this.state.collapseThinkingByDefault === false ? false : undefined,
       orchestrationChildren: orchestration.toPersistedOrchestrationChildren(this.state.orchestrationChildren),
     };
 

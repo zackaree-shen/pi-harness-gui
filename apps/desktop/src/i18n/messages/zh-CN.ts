@@ -159,6 +159,10 @@ export const zhCNMessages = {
       enableSkillCommandsDescription: "保持技能斜杠命令在输入框中可用。",
       terminalShell: "集成终端 Shell",
       terminalShellDescription: "留空以使用默认登录 Shell。",
+      hideThinking: "隐藏思考内容",
+      hideThinkingDescription: "不在对话时间线中显示模型的思考/推理过程。",
+      collapseThinkingByDefault: "默认折叠思考",
+      collapseThinkingByDefaultDescription: "思考内容默认收起，可手动展开查看。",
       languageDescription: "选择应用界面的显示语言",
       shortcutNewThread: "新建线程",
       shortcutOpenSettings: "打开设置",
@@ -378,6 +382,7 @@ export const zhCNMessages = {
   },
 
   timeline: {
+    thinking: "思考过程",
     prompts: "提示词",
     promptsInThread: "本线程的提示词",
     loading: "正在加载记录…",

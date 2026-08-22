@@ -327,6 +327,10 @@ export interface DesktopAppState {
   readonly enableTransparency: boolean;
   /** Global UI font scale (zoom), 1.0 = 100%. */
   readonly uiFontScale: number;
+  /** When true, assistant thinking/reasoning content is not rendered in the timeline. */
+  readonly hideThinking: boolean;
+  /** When true (and thinking shown), thinking blocks start collapsed. */
+  readonly collapseThinkingByDefault: boolean;
   readonly startupDiagnostics: readonly StartupDiagnostic[];
   readonly revision: number;
   readonly lastError?: string;
@@ -379,6 +383,8 @@ export function createEmptyDesktopAppState(): DesktopAppState {
     sidebarCollapsed: false,
     enableTransparency: false,
     uiFontScale: 1,
+    hideThinking: false,
+    collapseThinkingByDefault: true,
     startupDiagnostics: [],
     revision: 0,
   };

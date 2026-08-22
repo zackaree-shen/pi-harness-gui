@@ -109,6 +109,8 @@ export const desktopIpc = {
   setIntegratedTerminalShell: "pi-gui:set-integrated-terminal-shell",
   setEnableTransparency: "pi-gui:set-enable-transparency",
   setUiFontScale: "pi-gui:set-ui-font-scale",
+  setHideThinking: "pi-gui:set-hide-thinking",
+  setCollapseThinkingByDefault: "pi-gui:set-collapse-thinking-by-default",
   getPermissionMode: "pi-gui:get-permission-mode",
   setPermissionMode: "pi-gui:set-permission-mode",
   reloadSession: "pi-gui:reload-session",
@@ -366,6 +368,8 @@ export interface PiDesktopApi {
   setIntegratedTerminalShell(shell: string): Promise<DesktopAppState>;
   setEnableTransparency(enabled: boolean): Promise<DesktopAppState>;
   setUiFontScale(scale: number): Promise<DesktopAppState>;
+  setHideThinking(hide: boolean): Promise<DesktopAppState>;
+  setCollapseThinkingByDefault(collapse: boolean): Promise<DesktopAppState>;
   getPermissionMode(): Promise<string>;
   setPermissionMode(mode: string): Promise<string>;
   reloadSession(): Promise<DesktopAppState>;

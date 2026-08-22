@@ -286,12 +286,14 @@ export function transcriptFromMessages(messages: readonly unknown[], fallbackTim
 
     const text = messageText(message);
     const attachments = messageAttachments(message);
-    if (text || attachments.length > 0) {
+    const thinking = role === "assistant" ? messageThinking(message) : "";
+    if (text || attachments.length > 0 || thinking) {
       transcript.push({
         kind: "message",
         id: typeof message.id === "string" ? message.id : `${role}-${index}`,
         role,
         text,
+        ...(thinking ? { thinking } : {}),
         ...(attachments.length > 0 ? { attachments } : {}),
         createdAt,
       });
@@ -404,6 +406,23 @@ export function messageText(message: Record<string, unknown>): string {
   }
 
   return "";
+}
+
+/** Extracts concatenated `thinking` parts from an assistant message's content. */
+export function messageThinking(message: Record<string, unknown>): string {
+  const { content } = message;
+  if (!Array.isArray(content)) {
+    return "";
+  }
+  return content
+    .map((part) =>
+      isRecord(part) && part.type === "thinking" && typeof part.thinking === "string"
+        ? part.thinking
+        : "",
+    )
+    .filter((text) => text.length > 0)
+    .join("\n\n")
+    .trim();
 }
 
 function messageAttachments(message: Record<string, unknown>) {

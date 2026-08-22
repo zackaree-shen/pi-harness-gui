@@ -38,6 +38,8 @@ interface ConversationTimelineProps {
   readonly onContentHeightChange: (state?: { readonly wasAtBottom: boolean }) => void;
   readonly onViewFileInDiff?: (path: string) => void;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
+  readonly hideThinking?: boolean;
+  readonly collapseThinkingByDefault?: boolean;
   readonly promptRailVisible?: boolean;
 }
 
@@ -56,6 +58,8 @@ export function ConversationTimeline({
   onContentHeightChange,
   onViewFileInDiff,
   onForkFromMessage,
+  hideThinking = false,
+  collapseThinkingByDefault = true,
   promptRailVisible = true,
 }: ConversationTimelineProps) {
   const renderedMessageIndexById = useMemo(() => {
@@ -270,6 +274,8 @@ export function ConversationTimeline({
           onViewFileInDiff={onViewFileInDiff}
           renderedMessageIndexById={renderedMessageIndexById}
           onForkFromMessage={onForkFromMessage}
+          hideThinking={hideThinking}
+          collapseThinkingByDefault={collapseThinkingByDefault}
         />
       ) : (
         <div className="timeline" data-testid="transcript">
@@ -283,6 +289,8 @@ export function ConversationTimeline({
               onViewFileInDiff={onViewFileInDiff}
               sourceMessageIndex={renderedMessageIndexById.get(item.id)}
               onForkFromMessage={onForkFromMessage}
+              hideThinking={hideThinking}
+              collapseThinkingByDefault={collapseThinkingByDefault}
             />
           ))}
         </div>
@@ -398,6 +406,8 @@ function VirtualizedTranscriptList({
   onViewFileInDiff,
   renderedMessageIndexById,
   onForkFromMessage,
+  hideThinking,
+  collapseThinkingByDefault,
 }: {
   readonly displayItems: readonly DisplayTimelineItem[];
   readonly timelinePaneRef: MutableRefObject<HTMLDivElement | null>;
@@ -406,6 +416,8 @@ function VirtualizedTranscriptList({
   readonly measurementVersion: number;
   readonly expandedToolCallIds: ReadonlySet<string>;
   readonly onHeightChange: (id: string, height: number) => void;
+  readonly hideThinking?: boolean;
+  readonly collapseThinkingByDefault?: boolean;
   readonly onToggleToolCall: (callId: string) => void;
   readonly onViewFileInDiff?: (path: string) => void;
   readonly renderedMessageIndexById: ReadonlyMap<string, number>;
@@ -503,6 +515,8 @@ function VirtualizedTranscriptList({
             onViewFileInDiff={onViewFileInDiff}
             sourceMessageIndex={renderedMessageIndexById.get(item.id)}
             onForkFromMessage={onForkFromMessage}
+            hideThinking={hideThinking}
+            collapseThinkingByDefault={collapseThinkingByDefault}
           />
         );
       })}
@@ -520,6 +534,8 @@ function MeasuredTimelineItem({
   onViewFileInDiff,
   sourceMessageIndex,
   onForkFromMessage,
+  hideThinking = false,
+  collapseThinkingByDefault = true,
 }: {
   readonly item: DisplayTimelineItem;
   readonly className?: string;
@@ -530,6 +546,8 @@ function MeasuredTimelineItem({
   readonly onViewFileInDiff?: (path: string) => void;
   readonly sourceMessageIndex?: number;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
+  readonly hideThinking?: boolean;
+  readonly collapseThinkingByDefault?: boolean;
 }) {
   const rowRef = useRef<HTMLDivElement | null>(null);
 
@@ -568,6 +586,8 @@ function MeasuredTimelineItem({
         onViewFileInDiff={onViewFileInDiff}
         sourceMessageIndex={sourceMessageIndex}
         onForkFromMessage={onForkFromMessage}
+        hideThinking={hideThinking}
+        collapseThinkingByDefault={collapseThinkingByDefault}
       />
     </div>
   );
@@ -622,7 +642,8 @@ function estimateTimelineItemHeight(item: DisplayTimelineItem): number {
         ? 56
         : 0;
     const textLength = Math.max(item.text.length, 1);
-    return 48 + attachmentHeight + Math.min(240, Math.ceil(textLength / 90) * 20);
+    const thinkingHeight = item.thinking ? 30 : 0;
+    return 48 + attachmentHeight + thinkingHeight + Math.min(240, Math.ceil(textLength / 90) * 20);
   }
   if (item.kind === "tool") {
     return 52;

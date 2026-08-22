@@ -13,6 +13,8 @@ export function TimelineItem({
   onViewFileInDiff,
   sourceMessageIndex,
   onForkFromMessage,
+  hideThinking = false,
+  collapseThinkingByDefault = true,
 }: {
   readonly item: DisplayTimelineItem;
   readonly expandedToolCallIds?: ReadonlySet<string>;
@@ -20,6 +22,8 @@ export function TimelineItem({
   readonly onViewFileInDiff?: (path: string) => void;
   readonly sourceMessageIndex?: number;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
+  readonly hideThinking?: boolean;
+  readonly collapseThinkingByDefault?: boolean;
 }) {
   switch (item.kind) {
     case "turn-marker":
@@ -30,6 +34,8 @@ export function TimelineItem({
           item={item}
           sourceMessageIndex={sourceMessageIndex}
           onForkFromMessage={onForkFromMessage}
+          hideThinking={hideThinking}
+          collapseThinkingByDefault={collapseThinkingByDefault}
         />
       );
     case "activity":
@@ -54,10 +60,14 @@ function TimelineMessage({
   item,
   sourceMessageIndex,
   onForkFromMessage,
+  hideThinking = false,
+  collapseThinkingByDefault = true,
 }: {
   readonly item: SessionTranscriptMessage;
   readonly sourceMessageIndex?: number;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
+  readonly hideThinking?: boolean;
+  readonly collapseThinkingByDefault?: boolean;
 }) {
   const t = useT();
   if (item.role === "user") {
@@ -107,9 +117,23 @@ function TimelineMessage({
   }
 
   const canFork = onForkFromMessage != null && sourceMessageIndex !== undefined;
+  const showThinking = !hideThinking && item.role === "assistant" && item.thinking && item.thinking.length > 0;
   return (
     <article className="timeline-item timeline-item--assistant">
-      <MessageMarkdown text={item.text} />
+      {showThinking ? (
+        <details className="timeline-thinking" data-testid="thinking-block" open={!collapseThinkingByDefault}>
+          <summary className="timeline-thinking__summary">
+            <span className="timeline-thinking__label">{t("timeline.thinking")}</span>
+            <span className="timeline-thinking__chars">
+              {Math.max(1, Math.round((item.thinking ?? "").length / 1000))}k
+            </span>
+          </summary>
+          <div className="timeline-thinking__body">
+            <MessageMarkdown text={item.thinking ?? ""} />
+          </div>
+        </details>
+      ) : null}
+      {item.text ? <MessageMarkdown text={item.text} /> : null}
       {canFork ? (
         <div className="timeline-item__actions">
           <button

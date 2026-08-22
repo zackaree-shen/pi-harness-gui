@@ -45,6 +45,10 @@ interface SettingsViewProps {
   readonly onSetThemeSkinId: (skinId: string) => void;
   readonly onSetEnableTransparency: (enabled: boolean) => void;
   readonly onSetUiFontScale: (scale: number) => void;
+  readonly hideThinking: boolean;
+  readonly onSetHideThinking: (hide: boolean) => void;
+  readonly collapseThinkingByDefault: boolean;
+  readonly onSetCollapseThinkingByDefault: (collapse: boolean) => void;
 }
 
 export function SettingsView({
@@ -81,6 +85,10 @@ export function SettingsView({
   onSetThemeSkinId,
   onSetEnableTransparency,
   onSetUiFontScale,
+  hideThinking,
+  onSetHideThinking,
+  collapseThinkingByDefault,
+  onSetCollapseThinkingByDefault,
 }: SettingsViewProps) {
   const t = useT();
   if (
@@ -136,6 +144,10 @@ export function SettingsView({
               onSetModelSettingsScopeMode={onSetModelSettingsScopeMode}
               onSetIntegratedTerminalShell={onSetIntegratedTerminalShell}
               onToggleSkillCommands={onToggleSkillCommands}
+              hideThinking={hideThinking}
+              onSetHideThinking={onSetHideThinking}
+              collapseThinkingByDefault={collapseThinkingByDefault}
+              onSetCollapseThinkingByDefault={onSetCollapseThinkingByDefault}
             />
           ) : null}
 

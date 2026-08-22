@@ -392,6 +392,8 @@ export function SecondarySurfaces({
         themeSkinId={snapshot.themeSkinId}
         enableTransparency={snapshot.enableTransparency}
         uiFontScale={snapshot.uiFontScale}
+        hideThinking={snapshot.hideThinking}
+        collapseThinkingByDefault={snapshot.collapseThinkingByDefault}
         onLoginProvider={handleLoginProvider}
         onLogoutProvider={handleLogoutProvider}
         onSetProviderApiKey={handleSetProviderApiKey}
@@ -411,6 +413,12 @@ export function SecondarySurfaces({
           void updateSnapshot(api, setSnapshot, () => api.setThemeSkinId(skinId));
         }}
         onSetThinkingLevel={handleSetThinkingLevel}
+        onSetHideThinking={(hide) => {
+          void updateSnapshot(api, setSnapshot, () => api.setHideThinking(hide));
+        }}
+        onSetCollapseThinkingByDefault={(collapse) => {
+          void updateSnapshot(api, setSnapshot, () => api.setCollapseThinkingByDefault(collapse));
+        }}
         onToggleSkillCommands={handleToggleSkillCommands}
         onSetEnableTransparency={(enabled) => {
           void updateSnapshot(api, setSnapshot, () => api.setEnableTransparency(enabled));

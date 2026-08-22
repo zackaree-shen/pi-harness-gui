@@ -365,6 +365,15 @@ input[type="checkbox"] {
 :root.dark .settings-pill svg path[stroke="currentColor"] {
   stroke: #e6eefc;
 }
+:root.dark .settings-pill--active {
+  border-color: #2e6d18;
+  background: linear-gradient(180deg, #86cf5e 0%, #4c9c2e 45%, #2f7a1c 100%);
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+:root.dark .settings-pill--active svg path[stroke="currentColor"] {
+  stroke: #ffffff;
+}
 
 /* Scrollbars — dark XP. */
 :root.dark ::-webkit-scrollbar-track {

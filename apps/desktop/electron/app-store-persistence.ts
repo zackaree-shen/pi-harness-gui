@@ -34,6 +34,8 @@ export interface PersistedUiState {
   readonly allowMultiple?: boolean;
   readonly enableTransparency?: boolean;
   readonly uiFontScale?: number;
+  readonly hideThinking?: boolean;
+  readonly collapseThinkingByDefault?: boolean;
   readonly themeMode?: ThemeMode;
   readonly themePresetId?: ThemePresetId;
   readonly themeSkinId?: string;
@@ -89,6 +91,11 @@ export async function readPersistedUiState(uiStateFilePath: string): Promise<Leg
       allowMultiple: typeof candidate.allowMultiple === "boolean" ? candidate.allowMultiple : undefined,
       enableTransparency: typeof candidate.enableTransparency === "boolean" ? candidate.enableTransparency : undefined,
       uiFontScale: toUiFontScale(candidate.uiFontScale),
+      hideThinking: typeof candidate.hideThinking === "boolean" ? candidate.hideThinking : undefined,
+      collapseThinkingByDefault:
+        typeof candidate.collapseThinkingByDefault === "boolean"
+          ? candidate.collapseThinkingByDefault
+          : undefined,
       themeMode: toThemeMode(candidate.themeMode),
       themePresetId: toThemePresetId(candidate.themePresetId),
       themeSkinId: typeof candidate.themeSkinId === "string" && candidate.themeSkinId.length > 0 ? candidate.themeSkinId : undefined,

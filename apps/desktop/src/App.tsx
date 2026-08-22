@@ -977,6 +977,8 @@ export default function App() {
                   onContentHeightChange={handleTimelineContentHeightChange}
                   onViewFileInDiff={handleViewFileInDiff}
                   onForkFromMessage={selectedSession.status === "running" ? undefined : openForkModal}
+                  hideThinking={snapshot?.hideThinking ?? false}
+                  collapseThinkingByDefault={snapshot?.collapseThinkingByDefault ?? true}
                   promptRailVisible={promptRailVisible}
                 />
               </div>
