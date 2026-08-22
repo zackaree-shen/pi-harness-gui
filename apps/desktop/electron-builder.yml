@@ -86,6 +86,9 @@ win:
 
 nsis:
   artifactName: ${productName}-${version}-${arch}-setup.${ext}
+  # Force install dir to %LOCALAPPDATA%\Programs\pi-gui instead of the npm
+  # package name sanitization (@pi-guidesktop). See build/installer.nsh.
+  include: build/installer.nsh
 
 portable:
   artifactName: ${productName}-${version}-${arch}-portable.${ext}
