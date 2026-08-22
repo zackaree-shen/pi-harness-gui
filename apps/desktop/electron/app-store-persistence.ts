@@ -142,6 +142,7 @@ function toAppView(value: unknown): AppView | undefined {
     value === "new-thread" ||
     value === "skills" ||
     value === "extensions" ||
+    value === "git" ||
     value === "settings"
     ? value
     : undefined;
