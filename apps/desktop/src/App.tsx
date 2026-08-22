@@ -111,9 +111,11 @@ export default function App() {
 
   // Full-UI skin (official / xp-luna …) layers on top of the theme preset.
   useEffect(() => {
-    if (snapshot && isThemeSkinId(snapshot.themeSkinId)) {
-      applyThemeSkinToRoot(document.documentElement, snapshot.themeSkinId);
-    }
+    applyThemeSkinToRoot(
+      document.documentElement,
+      snapshot && isThemeSkinId(snapshot.themeSkinId) ? snapshot.themeSkinId : "official",
+      resolvedTheme,
+    );
   }, [snapshot?.themeSkinId, snapshot?.themePresetId, resolvedTheme]);
 
   useEffect(() => {

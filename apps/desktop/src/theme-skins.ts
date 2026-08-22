@@ -6,13 +6,17 @@
  */
 export type ThemeSkinId = "official" | "xp-luna";
 
+export type ResolvedTheme = "light" | "dark";
+
 export interface ThemeSkin {
   readonly id: ThemeSkinId;
   readonly name: string;
   readonly description: string;
   readonly swatches: readonly string[];
-  /** CSS variables applied on top of the active theme preset. */
+  /** CSS variables applied on top of the active theme preset (light mode). */
   readonly tokens: Readonly<Record<string, string>>;
+  /** Dark-mode token set; falls back to `tokens` when absent. */
+  readonly tokensDark?: Readonly<Record<string, string>>;
   /** Component-level overrides injected via a <style data-theme-skin> tag. */
   readonly css?: string;
 }
@@ -45,6 +49,24 @@ export const THEME_SKINS: readonly ThemeSkin[] = [
       "--button-primary-ink": "#ffffff",
       "--button-primary-hover-bg": "#5cb23b",
       /* XP system font stack (Tahoma UI / SimSun CJK). */
+      "--font-ui": 'Tahoma, "Microsoft Sans Serif", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif',
+      "--font-sans": 'Tahoma, "Microsoft Sans Serif", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+      "--font-mono": '"Courier New", "Sarasa Mono SC", Consolas, monospace',
+    },
+    tokensDark: {
+      "--accent": "#5a8fe6",
+      "--text": "#d7e3f6",
+      "--text-strong": "#f0f6ff",
+      "--muted": "#9db4d0",
+      "--muted-strong": "#b5c9e0",
+      "--muted-soft": "#8599b8",
+      "--line": "#3d5a80",
+      "--line-strong": "#52739e",
+      "--error": "#ff6b7d",
+      "--button-primary-bg": "#4c9c2e",
+      "--button-primary-border": "#3a7d22",
+      "--button-primary-ink": "#ffffff",
+      "--button-primary-hover-bg": "#5cb23b",
       "--font-ui": 'Tahoma, "Microsoft Sans Serif", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif',
       "--font-sans": 'Tahoma, "Microsoft Sans Serif", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
       "--font-mono": '"Courier New", "Sarasa Mono SC", Consolas, monospace',
@@ -263,6 +285,96 @@ input[type="checkbox"] {
 .settings-search {
   border-radius: 4px;
 }
+
+/* ── Dark mode: XP night (mirrors dsh skins' [data-ds-dark-theme]  ──
+   The skin's light tokens are inline styles that beat :root.dark
+   preset values, so dark variants live in tokensDark (JS) for
+   variables and here for component chrome. */
+
+/* Night sky over a dark hill. */
+:root.dark body {
+  background: linear-gradient(
+    to bottom,
+    #070c16 0%,
+    #0d1830 45%,
+    #10203c 60%,
+    #0d2415 74%,
+    #081a0e 100%
+  ) fixed;
+}
+
+/* Sidebar — deep navy Luna. */
+:root.dark .sidebar {
+  background: linear-gradient(180deg, #1c2f55 0%, #16264a 55%, #101d3c 100%);
+  border-right: 1px solid #0a1226;
+}
+:root.dark .sidebar__nav-item,
+:root.dark .sidebar__new {
+  color: #d7e3f6;
+}
+:root.dark .sidebar__nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+:root.dark .sidebar svg path[stroke="currentColor"],
+:root.dark .sidebar svg rect[stroke="currentColor"],
+:root.dark .sidebar svg circle[stroke="currentColor"] {
+  stroke: #9dc1ef;
+}
+:root.dark .session-row svg path[stroke="currentColor"],
+:root.dark .session-row svg rect[stroke="currentColor"],
+:root.dark .session-row svg circle[stroke="currentColor"] {
+  stroke: #8fb4e4;
+}
+
+/* Buttons — dark XP chrome. */
+:root.dark .button {
+  border-color: #3d5a80;
+  background: linear-gradient(180deg, #33456b 0%, #28395c 45%, #1e2d4c 100%);
+  color: #e6eefc;
+  text-shadow: none;
+}
+:root.dark .button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3d527d 0%, #2a3f66 45%, #20304f 100%);
+  border-color: #5a8fe6;
+}
+:root.dark .button--ghost {
+  background: linear-gradient(180deg, #33456b 0%, #28395c 45%, #1e2d4c 100%);
+  border-color: #3d5a80;
+}
+
+/* Inputs — dark fields with light text. */
+:root.dark .composer__editor textarea,
+:root.dark .settings-search,
+:root.dark .settings-text-input,
+:root.dark .settings-select,
+:root.dark .thread-search-bar__input,
+:root.dark .skill-search,
+:root.dark .skills-search {
+  border-color: #3d5a80;
+  background: #0e1a30;
+  color: #e6eefc;
+}
+
+/* Settings pills — dark. */
+:root.dark .settings-pill {
+  border-color: #3d5a80;
+  background: linear-gradient(180deg, #33456b 0%, #28395c 45%, #1e2d4c 100%);
+  color: #e6eefc;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+:root.dark .settings-pill svg path[stroke="currentColor"] {
+  stroke: #e6eefc;
+}
+
+/* Scrollbars — dark XP. */
+:root.dark ::-webkit-scrollbar-track {
+  background: #101c34;
+  border-left: 1px solid #223454;
+}
+:root.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #2c4370 0%, #3d5a80 45%, #4a6a96 100%);
+  border: 1px solid #52739e;
+}
 `,
   },
 ];
@@ -275,14 +387,25 @@ export function getThemeSkin(id: ThemeSkinId): ThemeSkin {
   return THEME_SKINS.find((skin) => skin.id === id) ?? THEME_SKINS[0]!;
 }
 
+/** All token names any skin may set — used to fully clear on switch. */
+const skinTokenNames: readonly string[] = Array.from(
+  new Set(THEME_SKINS.flatMap((skin) => [...Object.keys(skin.tokens), ...Object.keys(skin.tokensDark ?? {})])),
+);
+
 /**
  * Apply a skin to the document root: layer its CSS-variable overrides on top
  * of the theme preset, and inject (or remove) its component-level <style>.
+ * Like theme presets, skins carry separate light/dark token sets so text
+ * contrast survives system dark mode.
  */
-export function applyThemeSkinToRoot(root: HTMLElement, skinId: ThemeSkinId): void {
+export function applyThemeSkinToRoot(root: HTMLElement, skinId: ThemeSkinId, resolvedTheme: ResolvedTheme = "light"): void {
   root.querySelector("[data-theme-skin]")?.remove();
+  for (const tokenName of skinTokenNames) {
+    root.style.removeProperty(tokenName);
+  }
   const skin = getThemeSkin(skinId);
-  for (const [key, value] of Object.entries(skin.tokens)) {
+  const tokens = resolvedTheme === "dark" ? (skin.tokensDark ?? skin.tokens) : skin.tokens;
+  for (const [key, value] of Object.entries(tokens)) {
     root.style.setProperty(key, value);
   }
   if (skin.css) {
