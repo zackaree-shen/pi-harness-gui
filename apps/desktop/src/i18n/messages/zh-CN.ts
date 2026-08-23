@@ -537,6 +537,11 @@ export const zhCNMessages = {
   },
 
   git: {
+    history: "历史",
+    files: "改动文件",
+    back: "返回历史",
+    collapseSidebar: "折叠侧栏",
+    expandSidebar: "展开侧栏",
     loading: "正在加载提交…",
     unavailable: "此工作区无法使用 Git。",
     empty: "还没有提交。",

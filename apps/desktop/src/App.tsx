@@ -51,13 +51,35 @@ import { useComposerDraftSync } from "./hooks/use-composer-draft-sync";
 import { useSessionComposer } from "./hooks/use-session-composer";
 import { useT } from "./i18n";
 
+const GIT_WORKSPACE_STORAGE_KEY = "pi.gitWorkspaceId";
+
+function readStoredGitWorkspaceId(): string {
+  try {
+    return window.localStorage.getItem(GIT_WORKSPACE_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
 export default function App() {
   const t = useT();
   const [snapshot, setSnapshot, selectedTranscript] = useDesktopAppState();
   const [settingsSection, setSettingsSection] = useState<SettingsSection>("general");
   const [settingsWorkspaceId, setSettingsWorkspaceId] = useState("");
   const [skillsWorkspaceId, setSkillsWorkspaceId] = useState("");
-  const [gitWorkspaceId, setGitWorkspaceId] = useState("");
+  const [gitWorkspaceId, setGitWorkspaceIdState] = useState(() => readStoredGitWorkspaceId());
+  const setGitWorkspaceId = useCallback((workspaceId: string) => {
+    setGitWorkspaceIdState(workspaceId);
+    try {
+      if (workspaceId) {
+        window.localStorage.setItem(GIT_WORKSPACE_STORAGE_KEY, workspaceId);
+      } else {
+        window.localStorage.removeItem(GIT_WORKSPACE_STORAGE_KEY);
+      }
+    } catch {
+      // localStorage can throw in locked-down environments; selection just won't persist.
+    }
+  }, []);
   const [extensionsWorkspaceId, setExtensionsWorkspaceId] = useState("");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
   const [dockExpandedBySession, setDockExpandedBySession] = useState<Record<string, boolean>>({});

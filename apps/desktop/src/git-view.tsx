@@ -14,7 +14,6 @@ import {
   type GitLogResult,
 } from "./ipc";
 import { useT } from "./i18n";
-import { GitIcon } from "./icons";
 
 const LOG_LIMIT = 500;
 const GRAPH_LANE_WIDTH = 14;
@@ -33,8 +32,29 @@ interface ActiveFile {
   readonly binary: boolean;
 }
 
-function formatTimestamp(timestampSeconds: number): string {
-  return new Date(timestampSeconds * 1000).toLocaleString();
+function formatRelativeTime(timestampSeconds: number): string {
+  const deltaSeconds = Date.now() / 1000 - timestampSeconds;
+  const relative = new Intl.RelativeTimeFormat(undefined, { numeric: "auto" });
+  if (deltaSeconds < 60) {
+    return relative.format(-Math.round(deltaSeconds), "second");
+  }
+  if (deltaSeconds < 3600) {
+    return relative.format(-Math.round(deltaSeconds / 60), "minute");
+  }
+  if (deltaSeconds < 86400) {
+    return relative.format(-Math.round(deltaSeconds / 3600), "hour");
+  }
+  if (deltaSeconds < 7 * 86400) {
+    return relative.format(-Math.round(deltaSeconds / 86400), "day");
+  }
+  return new Date(timestampSeconds * 1000).toLocaleDateString();
+}
+
+function splitPath(path: string): { dir: string; base: string } {
+  const index = path.lastIndexOf("/");
+  return index === -1
+    ? { dir: "", base: path }
+    : { dir: path.slice(0, index + 1), base: path.slice(index + 1) };
 }
 
 function hasUnifiedHunks(diffText: string): boolean {
@@ -49,7 +69,9 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
   const [log, setLog] = useState<GitLogResult | null>(null);
   const [logPending, setLogPending] = useState(false);
   const [selectedSha, setSelectedSha] = useState("");
+  const [navLevel, setNavLevel] = useState<"history" | "files">("history");
   const [detail, setDetail] = useState<GitCommitDetailResult | null>(null);
+  const [detailPending, setDetailPending] = useState(false);
   const [activeFile, setActiveFile] = useState<ActiveFile | null>(null);
   const [fileMode, setFileMode] = useState<"diff" | "blame">("diff");
   const [diffText, setDiffText] = useState("");
@@ -58,10 +80,15 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
   const [diffViewMode, setDiffViewMode] = useState<DiffModeEnum>(DiffModeEnum.Split);
   const [wrap, setWrap] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState<number | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const copiedRef = useRef(false);
   const fileLoadTokenRef = useRef(0);
   const logLoadTokenRef = useRef(0);
   const detailLoadTokenRef = useRef(0);
+  const sidebarBodyRef = useRef<HTMLDivElement | null>(null);
+  const historyScrollRef = useRef(0);
+  const resizeDragRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   const loadLog = useCallback(
     (selectFirst: boolean) => {
@@ -104,6 +131,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
     setDiffText("");
     setBlame(null);
     setSelectedSha("");
+    setNavLevel("history");
     loadLog(true);
   }, [loadLog]);
 
@@ -117,6 +145,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
       return;
     }
     const token = ++detailLoadTokenRef.current;
+    setDetailPending(true);
     void api
       .getGitCommitDetail(workspaceId, selectedSha)
       .then((result) => {
@@ -127,6 +156,11 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
       .catch(() => {
         if (detailLoadTokenRef.current === token) {
           setDetail({ state: "unavailable", error: { code: "git-detail-failed", message: "Commit details are unavailable for this workspace." } });
+        }
+      })
+      .finally(() => {
+        if (detailLoadTokenRef.current === token) {
+          setDetailPending(false);
         }
       });
   }, [api, workspaceId, selectedSha]);
@@ -193,6 +227,56 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
     [layout, selectedSha],
   );
 
+  const selectCommit = useCallback((sha: string) => {
+    historyScrollRef.current = sidebarBodyRef.current?.scrollTop ?? 0;
+    setSelectedSha(sha);
+    setNavLevel("files");
+  }, []);
+
+  const goBackToHistory = useCallback(() => {
+    setActiveFile(null);
+    setFileMode("diff");
+    setNavLevel("history");
+  }, []);
+
+  // Keep per-level scroll positions: history restores its saved offset, files starts at the top.
+  useEffect(() => {
+    if (!sidebarBodyRef.current) {
+      return;
+    }
+    if (navLevel === "history") {
+      sidebarBodyRef.current.scrollTop = historyScrollRef.current;
+    } else {
+      sidebarBodyRef.current.scrollTop = 0;
+    }
+  }, [navLevel, log, sidebarCollapsed]);
+
+  const handleResizeStart = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    resizeDragRef.current = {
+      startX: event.clientX,
+      startWidth: sidebarBodyRef.current?.parentElement?.getBoundingClientRect().width ?? 300,
+    };
+  };
+
+  const handleResizeMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const drag = resizeDragRef.current;
+    if (!drag) {
+      return;
+    }
+    const next = drag.startWidth + (event.clientX - drag.startX);
+    const maxWidth = Math.max(220, window.innerWidth - 460);
+    setSidebarWidth(Math.min(Math.max(next, 200), maxWidth));
+  };
+
+  const handleResizeEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (resizeDragRef.current) {
+      resizeDragRef.current = null;
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
   const handleCopySha = () => {
     if (!selectedSha) {
       return;
@@ -207,9 +291,73 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
     return <div className="git-view git-view--empty">{t("sidebar.noWorkspace")}</div>;
   }
 
+  const fileCount = detail?.state === "ok" ? detail.files.length : null;
+
   return (
     <div className="git-view" data-testid="git-view">
-      <section className="git-view__log" data-testid="git-log">
+      <nav
+        className={`git-sidebar${sidebarCollapsed ? " git-sidebar--collapsed" : ""}`}
+        data-testid="git-sidebar"
+        style={sidebarWidth !== null && !sidebarCollapsed ? { flexBasis: sidebarWidth } : undefined}
+      >
+        {sidebarCollapsed ? (
+          <button
+            className="git-sidebar__rail"
+            data-testid="git-sidebar-expand"
+            onClick={() => setSidebarCollapsed(false)}
+            title={t("git.expandSidebar")}
+            type="button"
+          >
+            ›
+          </button>
+        ) : (
+          <>
+        {navLevel === "files" ? (
+          <div className="git-sidebar__head">
+            <button
+              className="git-sidebar__back"
+              data-testid="git-sidebar-back"
+              onClick={goBackToHistory}
+              title={t("git.back")}
+              type="button"
+            >
+              ‹
+            </button>
+            <span className="git-sidebar__title">{t("git.files")}</span>
+            {fileCount !== null ? <span className="git-sidebar__count">{fileCount}</span> : null}
+            <span className="git-sidebar__actions">
+              <button
+                className="git-sidebar__collapse"
+                onClick={() => setSidebarCollapsed(true)}
+                title={t("git.collapseSidebar")}
+                type="button"
+              >
+                «
+              </button>
+            </span>
+          </div>
+        ) : (
+          <div className="git-sidebar__head">
+            <span className="git-sidebar__title">{t("git.history")}</span>
+            {log?.state === "ok" ? (
+              <span className="git-sidebar__count">{log.commits.length}</span>
+            ) : null}
+            <span className="git-sidebar__actions">
+              <button
+                className="git-sidebar__collapse"
+                onClick={() => setSidebarCollapsed(true)}
+                title={t("git.collapseSidebar")}
+                type="button"
+              >
+                «
+              </button>
+            </span>
+          </div>
+        )}
+
+        <div className="git-sidebar__body" ref={sidebarBodyRef}>
+        {navLevel === "history" ? (
+        <>
         {logPending && !log ? <div className="git-view__hint">{t("git.loading")}</div> : null}
         {log?.state === "unavailable" ? (
           <div className="git-view__hint">{t("git.unavailable")}</div>
@@ -223,6 +371,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
               className="git-log__graph"
               height={layout.rows.length * GRAPH_ROW_HEIGHT}
               width={graphWidth}
+              style={{ height: layout.rows.length * GRAPH_ROW_HEIGHT, width: graphWidth }}
               aria-hidden="true"
             >
               {layout.rows.map((row) => {
@@ -273,7 +422,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                         commit.sha === selectedSha ? " git-log__row--selected" : ""
                       }`}
                       data-testid="git-log-row"
-                      onClick={() => setSelectedSha(commit.sha)}
+                      onClick={() => selectCommit(commit.sha)}
                       style={{ height: GRAPH_ROW_HEIGHT }}
                       type="button"
                     >
@@ -295,7 +444,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                           <span className="git-log__author">{commit.authorName}</span>
                           <span className="git-log__sha">{commit.sha.slice(0, 7)}</span>
                           <span className="git-log__date">
-                            {formatTimestamp(commit.authorTimestamp)}
+                            {formatRelativeTime(commit.authorTimestamp)}
                           </span>
                         </span>
                       </span>
@@ -306,21 +455,76 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
             </ol>
           </div>
         ) : null}
-      </section>
+        </>
+        ) : detail != null && detail.state === "ok" ? (
+          <ol className="git-files" data-testid="git-file-list">
+            {detail.files.map((file) => {
+              const active = activeFile?.path === file.path;
+              const { dir, base } = splitPath(file.path);
+              return (
+                <li key={`${file.path}-${file.oldPath ?? ""}`}>
+                  <button
+                    className={`git-file${active ? " git-file--active" : ""}`}
+                    data-testid="git-file-row"
+                    onClick={() => {
+                      setActiveFile({ path: file.path, oldPath: file.oldPath, binary: file.binary });
+                      setFileMode("diff");
+                    }}
+                    title={file.oldPath ? `${file.oldPath} → ${file.path}` : file.path}
+                    type="button"
+                  >
+                    {file.additions !== null ? (
+                      <span className="git-file__count git-file__count--add">+{file.additions}</span>
+                    ) : null}
+                    {file.deletions !== null ? (
+                      <span className="git-file__count git-file__count--del">−{file.deletions}</span>
+                    ) : null}
+                    <span className="git-file__path">
+                      <span className="git-file__dir">{dir}</span>
+                      <span className="git-file__base">{base}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <div className="git-view__hint">
+            {detailPending ? t("git.loading") : t("git.unavailable")}
+          </div>
+        )}
+        </div>
 
-      <section className="git-view__detail" data-testid="git-detail">
+        <div
+          className="git-sidebar__resizer"
+          onPointerDown={handleResizeStart}
+          onPointerMove={handleResizeMove}
+          onPointerUp={handleResizeEnd}
+          onPointerCancel={handleResizeEnd}
+          role="separator"
+          aria-orientation="vertical"
+        />
+          </>
+        )}
+      </nav>
+
+      <section className="git-main" data-testid="git-detail">
         {!selectedSha || !detail ? (
-          <div className="git-view__hint">{t("git.selectCommit")}</div>
+          <div className="git-view__hint git-main__placeholder">
+            {detailPending ? t("git.loading") : t("git.selectCommit")}
+          </div>
         ) : detail.state === "unavailable" ? (
-          <div className="git-view__hint">{t("git.unavailable")}</div>
+          <div className="git-view__hint git-main__placeholder">{t("git.unavailable")}</div>
         ) : (
           <>
-            <header className="git-detail__header">
-              <h3 className="git-detail__subject">{detail.subject}</h3>
-              {detail.body ? <pre className="git-detail__body">{detail.body}</pre> : null}
-              <div className="git-detail__meta">
-                <span className="git-detail__author">{detail.authorName}</span>
-                <span className="git-detail__date">{formatTimestamp(detail.authorTimestamp)}</span>
+            <header className="git-main__summary">
+              <span className="git-main__summary-subject" title={detail.subject}>
+                {detail.subject}
+              </span>
+              <span className="git-main__summary-author">{detail.authorName}</span>
+              <span className="git-main__summary-date">
+                {formatRelativeTime(detail.authorTimestamp)}
+              </span>
                 <button
                   className="git-detail__sha"
                   data-testid="git-detail-sha"
@@ -340,7 +544,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                         className="git-detail__parent"
                         disabled={!known}
                         key={parent}
-                        onClick={() => setSelectedSha(parent)}
+                        onClick={() => selectCommit(parent)}
                         type="button"
                       >
                         {parent.slice(0, 7)}
@@ -348,52 +552,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                     );
                   })}
                 </span>
-              </div>
             </header>
-
-            <div className="git-detail__files" data-testid="git-file-list">
-              {detail.files.map((file) => {
-                const active = activeFile?.path === file.path;
-                return (
-                  <div
-                    className={`git-file${active ? " git-file--active" : ""}`}
-                    data-testid="git-file-row"
-                    key={`${file.path}-${file.oldPath ?? ""}`}
-                  >
-                    <button
-                      className="git-file__main"
-                      onClick={() => {
-                        setActiveFile({ path: file.path, oldPath: file.oldPath, binary: file.binary });
-                        setFileMode("diff");
-                      }}
-                      type="button"
-                    >
-                      {file.additions !== null ? (
-                        <span className="git-file__count git-file__count--add">+{file.additions}</span>
-                      ) : null}
-                      {file.deletions !== null ? (
-                        <span className="git-file__count git-file__count--del">−{file.deletions}</span>
-                      ) : null}
-                      <span className="git-file__path">
-                        {file.oldPath ? `${file.oldPath} → ${file.path}` : file.path}
-                      </span>
-                    </button>
-                    <button
-                      className="git-file__blame"
-                      data-testid="git-file-blame"
-                      onClick={() => {
-                        setActiveFile({ path: file.path, oldPath: file.oldPath, binary: file.binary });
-                        setFileMode("blame");
-                      }}
-                      title={t("git.blame")}
-                      type="button"
-                    >
-                      {t("git.blame")}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
 
             {activeFile ? (
               <div className="git-detail__content" data-testid="git-file-content">
@@ -431,6 +590,15 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                             {t("git.wrapLines")}
                           </button>
                         ) : null}
+                        <button
+                          className={`git-toolbar__toggle${fileMode === "blame" ? " git-toolbar__toggle--active" : ""}`}
+                          data-testid="git-file-blame"
+                          onClick={() => setFileMode(fileMode === "blame" ? "diff" : "blame")}
+                          title={t("git.blame")}
+                          type="button"
+                        >
+                          {t("git.blame")}
+                        </button>
                       </>
                     )}
                   </div>
@@ -496,7 +664,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                           >
                             <button
                               className="git-blame__sha"
-                              onClick={() => setSelectedSha(line.sha)}
+                              onClick={() => selectCommit(line.sha)}
                               title={line.summary}
                               type="button"
                             >
@@ -516,7 +684,10 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
                 ) : null}
               </div>
             ) : (
-              <div className="git-view__hint git-detail__placeholder">{t("git.selectFile")}</div>
+              <div className="git-main__welcome">
+                {detail.body ? <pre className="git-detail__body">{detail.body}</pre> : null}
+                <div className="git-view__hint">{t("git.selectFile")}</div>
+              </div>
             )}
           </>
         )}

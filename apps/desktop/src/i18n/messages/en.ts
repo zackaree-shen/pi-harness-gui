@@ -491,6 +491,11 @@ export const enMessages: DeepStringRecord = {
   "modelOnboarding.defaultUnavailableDescHasSelection": "Your saved default ({model}) is no longer available. Open Settings > Models to update it.",
   "modelOnboarding.defaultUnavailableDescNoSelection": "Your saved default ({model}) is no longer available. Choose a model for this thread, then open Settings > Models to update it.",
 
+  "git.history": "History",
+  "git.files": "Changed files",
+  "git.back": "Back to history",
+  "git.collapseSidebar": "Collapse sidebar",
+  "git.expandSidebar": "Expand sidebar",
   "git.loading": "Loading commits…",
   "git.unavailable": "Git is not available for this workspace.",
   "git.empty": "No commits yet.",
