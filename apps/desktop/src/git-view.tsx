@@ -16,7 +16,7 @@ import {
 import { useT } from "./i18n";
 
 const LOG_LIMIT = 500;
-const GRAPH_LANE_WIDTH = 14;
+const GRAPH_LANE_WIDTH = 12;
 const GRAPH_ROW_HEIGHT = 48;
 const BLAME_LINE_LIMIT = 5000;
 

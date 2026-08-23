@@ -3,6 +3,13 @@ import type { GitLogCommit } from "./ipc";
 /** Number of distinct lane colors (CSS classes .git-lane--0 .. .git-lane--7). */
 export const GIT_LANE_COLOR_COUNT = 8;
 
+/**
+ * Rendering cap on lanes: beyond this many concurrent branches the extra lanes
+ * fold into the last column so a pathological history cannot squeeze the
+ * commit text out of the sidebar (6 lanes × 12px ≈ 72px of graph).
+ */
+export const MAX_GRAPH_LANES = 6;
+
 export interface GitGraphEdge {
   /** Parent commit sha this edge points to. */
   readonly parentSha: string;
@@ -75,21 +82,22 @@ export function computeGitGraphLayout(commits: readonly GitLogCommit[]): GitGrap
     }
   }
 
+  const clampLane = (lane: number) => Math.min(lane, MAX_GRAPH_LANES - 1);
+  const clampedRows = rows.map((row) => ({
+    ...row,
+    lane: clampLane(row.lane),
+    edges: row.edges.map((edge) => ({ ...edge, childLane: clampLane(edge.childLane) })),
+  }));
+
   let laneCount = 0;
   const rowsBySha = new Map<string, GitGraphRow & { index: number }>();
-  rows.forEach((row, index) => {
+  clampedRows.forEach((row, index) => {
     rowsBySha.set(row.commit.sha, { ...row, index });
     laneCount = Math.max(laneCount, row.lane + 1);
-    for (const edge of row.edges) {
-      const parent = rowsBySha.get(edge.parentSha);
-      if (parent) {
-        laneCount = Math.max(laneCount, parent.lane + 1);
-      }
-    }
   });
   laneCount = Math.max(laneCount, 1);
 
-  return { rows, rowsBySha, laneCount };
+  return { rows: clampedRows, rowsBySha, laneCount };
 }
 
 /** Bezier path from a child dot down to its parent dot (gitk-style curves). */
