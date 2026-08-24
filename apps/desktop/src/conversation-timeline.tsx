@@ -77,14 +77,13 @@ export function ConversationTimeline({
 
   const displayItems = useMemo(() => buildDisplayTimelineItems(transcript), [transcript]);
 
-  // Very long prose blocks and attachment-heavy rows are the only ones the
-  // height estimator really can't predict well enough to virtualize. A 2000-char
-  // cutoff was far too eager — a long transcript with any sizeable message would
-  // fall off the virtualized path and render every row (thousands of DOM nodes),
-  // which is what made the timeline sluggish. Raise it so realistic sessions stay
-  // virtualized; measured row heights converge within a frame or two anyway.
+  // Very long prose blocks occasionally need a non-virtualized path, but
+  // attachment rows virtualize fine (their height is measured after mount), and
+  // any attachment would otherwise force the entire transcript off the
+  // virtualized path — a long session with a handful of images rendered every
+  // row, which is what made typing and navigation sluggish.
   const hasUnreliableVirtualizedHeights = transcript.some(
-    (item) => item.kind === "message" && (item.text.length > 10000 || Boolean(item.attachments?.length)),
+    (item) => item.kind === "message" && item.text.length > 10000,
   );
   const shouldVirtualize =
     !threadSearch.isOpen &&
