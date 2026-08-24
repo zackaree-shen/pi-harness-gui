@@ -81,7 +81,7 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
   const [wrap, setWrap] = useState(false);
   const [copied, setCopied] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState<number | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const copiedRef = useRef(false);
   const fileLoadTokenRef = useRef(0);
   const logLoadTokenRef = useRef(0);
