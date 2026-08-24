@@ -76,14 +76,7 @@ export const THEME_SKINS: readonly ThemeSkin[] = [
 
 /* Bliss sky desktop: blue sky gradient with a green hill band. */
 body {
-  background: linear-gradient(
-    to bottom,
-    #3b82e0 0%,
-    #6fb3e8 38%,
-    #8ecb8c 62%,
-    #5fa85f 74%,
-    #4e9a4e 100%
-  ) fixed;
+  background: #eef4fb;
 }
 
 /* Title bar — Luna blue gradient with a glossy sheen. */
@@ -293,14 +286,7 @@ input[type="checkbox"] {
 
 /* Night sky over a dark hill. */
 :root.dark body {
-  background: linear-gradient(
-    to bottom,
-    #070c16 0%,
-    #0d1830 45%,
-    #10203c 60%,
-    #0d2415 74%,
-    #081a0e 100%
-  ) fixed;
+  background: #101623;
 }
 
 /* Sidebar — deep navy Luna. */
