@@ -5,8 +5,9 @@ import { InlineDiff, extractDiffFromOutput } from "./diff-inline";
 import { ChevronRightIcon, CopyIcon, DiffIcon, FileIcon, ForkIcon, SparkIcon, TerminalIcon } from "./icons";
 import { extensionToLanguage } from "./syntax-highlight";
 import { useT } from "./i18n";
+import { memo } from "react";
 
-export function TimelineItem({
+export const TimelineItem = memo(function TimelineItem({
   item,
   expandedToolCallIds,
   onToggleToolCall,
@@ -54,7 +55,7 @@ export function TimelineItem({
     default:
       return null;
   }
-}
+});
 
 function TimelineMessage({
   item,
