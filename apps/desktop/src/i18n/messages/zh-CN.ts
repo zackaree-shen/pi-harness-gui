@@ -540,6 +540,7 @@ export const zhCNMessages = {
     history: "历史",
     files: "改动文件",
     back: "返回历史",
+    backToApp: "返回应用",
     collapseSidebar: "折叠侧栏",
     expandSidebar: "展开侧栏",
     loading: "正在加载提交…",

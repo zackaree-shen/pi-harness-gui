@@ -1,5 +1,17 @@
 /* Git view: commit graph + detail panel */
 
+.git-workspace-surface {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.git-workspace-surface .surface-toolbar {
+  flex: 0 0 auto;
+}
+
 .git-view {
   display: flex;
   flex: 1;

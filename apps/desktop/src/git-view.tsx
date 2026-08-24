@@ -24,6 +24,7 @@ interface GitViewProps {
   readonly api: NonNullable<typeof window.piApp>;
   readonly workspaceId?: string;
   readonly resolvedTheme: "light" | "dark";
+  readonly onExit?: () => void;
 }
 
 interface ActiveFile {
@@ -64,7 +65,7 @@ function hasUnifiedHunks(diffText: string): boolean {
 function isBinaryDiff(diffText: string): boolean {
   return /^Binary files .* differ$/m.test(diffText);
 }
-export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
+export function GitView({ api, workspaceId, resolvedTheme, onExit }: GitViewProps) {
   const t = useT();
   const [log, setLog] = useState<GitLogResult | null>(null);
   const [logPending, setLogPending] = useState(false);
@@ -338,6 +339,17 @@ export function GitView({ api, workspaceId, resolvedTheme }: GitViewProps) {
           </div>
         ) : (
           <div className="git-sidebar__head">
+            {onExit ? (
+              <button
+                className="git-sidebar__back"
+                data-testid="git-sidebar-exit"
+                onClick={onExit}
+                title={t("git.backToApp")}
+                type="button"
+              >
+                ←
+              </button>
+            ) : null}
             <span className="git-sidebar__title">{t("git.history")}</span>
             {log?.state === "ok" ? (
               <span className="git-sidebar__count">{log.commits.length}</span>

@@ -494,6 +494,7 @@ export const enMessages: DeepStringRecord = {
   "git.history": "History",
   "git.files": "Changed files",
   "git.back": "Back to history",
+  "git.backToApp": "Back to app",
   "git.collapseSidebar": "Collapse sidebar",
   "git.expandSidebar": "Expand sidebar",
   "git.loading": "Loading commits…",

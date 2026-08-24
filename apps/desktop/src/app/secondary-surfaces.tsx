@@ -330,7 +330,7 @@ export function SecondarySurfaces({
 
   if (activeView === "git") {
     return (
-      <SecondarySurface onBack={onBack} testId="git-surface" title={t("sidebar.git")}>
+      <div className="git-workspace-surface">
         <div className="surface-toolbar">
           <label className="surface-toolbar__field">
             <span>Workspace</span>
@@ -346,8 +346,13 @@ export function SecondarySurfaces({
             </select>
           </label>
         </div>
-        <GitView api={api} workspaceId={gitWorkspace?.id} resolvedTheme={resolvedTheme} />
-      </SecondarySurface>
+        <GitView
+          api={api}
+          workspaceId={gitWorkspace?.id}
+          resolvedTheme={resolvedTheme}
+          onExit={onBack}
+        />
+      </div>
     );
   }
 
