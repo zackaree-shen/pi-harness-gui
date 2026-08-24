@@ -65,12 +65,12 @@ export function parseGitLogOutput(output: string): GitLogCommit[] {
 
     commits.push({
       sha,
-      parents: parents === "" ? [] : parents.split(" "),
+      parents: parents == null || parents === "" ? [] : parents.split(" "),
       authorName: authorName ?? "",
       authorEmail: authorEmail ?? "",
       authorTimestamp: Number(authorTimestamp),
       subject: subject ?? "",
-      decorations: decorations === "" ? [] : decorations.split(", ").filter(Boolean),
+      decorations: decorations == null || decorations === "" ? [] : decorations.split(", ").filter(Boolean),
     });
   }
   return commits;
@@ -289,7 +289,7 @@ export function parseGitBlamePorcelain(output: string): GitBlameLine[] {
     const headerMatch = BLAME_HEADER_PATTERN.exec(line);
     if (headerMatch) {
       current = {
-        sha: headerMatch[1],
+        sha: headerMatch[1] ?? "",
         origLine: Number(headerMatch[2]),
         finalLine: Number(headerMatch[3]),
         authorName: "",
