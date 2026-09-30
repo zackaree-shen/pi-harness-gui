@@ -110,6 +110,7 @@ export const desktopIpc = {
   setEnableTransparency: "pi-gui:set-enable-transparency",
   setUiFontScale: "pi-gui:set-ui-font-scale",
   setHideThinking: "pi-gui:set-hide-thinking",
+  setEnableHtmlArtifacts: "pi-gui:set-enable-html-artifacts",
   setCollapseThinkingByDefault: "pi-gui:set-collapse-thinking-by-default",
   getPermissionMode: "pi-gui:get-permission-mode",
   setPermissionMode: "pi-gui:set-permission-mode",
@@ -442,6 +443,7 @@ export interface PiDesktopApi {
   setEnableTransparency(enabled: boolean): Promise<DesktopAppState>;
   setUiFontScale(scale: number): Promise<DesktopAppState>;
   setHideThinking(hide: boolean): Promise<DesktopAppState>;
+  setEnableHtmlArtifacts(enable: boolean): Promise<DesktopAppState>;
   setCollapseThinkingByDefault(collapse: boolean): Promise<DesktopAppState>;
   getPermissionMode(): Promise<string>;
   setPermissionMode(mode: string): Promise<string>;

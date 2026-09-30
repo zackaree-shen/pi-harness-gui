@@ -16,6 +16,8 @@ export const TimelineItem = memo(function TimelineItem({
   onForkFromMessage,
   hideThinking = false,
   collapseThinkingByDefault = true,
+  enableHtmlArtifacts = false,
+  sessionRunning = false,
 }: {
   readonly item: DisplayTimelineItem;
   readonly expandedToolCallIds?: ReadonlySet<string>;
@@ -25,6 +27,8 @@ export const TimelineItem = memo(function TimelineItem({
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
   readonly hideThinking?: boolean;
   readonly collapseThinkingByDefault?: boolean;
+  readonly enableHtmlArtifacts?: boolean;
+  readonly sessionRunning?: boolean;
 }) {
   switch (item.kind) {
     case "turn-marker":
@@ -37,6 +41,8 @@ export const TimelineItem = memo(function TimelineItem({
           onForkFromMessage={onForkFromMessage}
           hideThinking={hideThinking}
           collapseThinkingByDefault={collapseThinkingByDefault}
+          enableHtmlArtifacts={enableHtmlArtifacts}
+          sessionRunning={sessionRunning}
         />
       );
     case "activity":
@@ -63,12 +69,16 @@ function TimelineMessage({
   onForkFromMessage,
   hideThinking = false,
   collapseThinkingByDefault = true,
+  enableHtmlArtifacts = false,
+  sessionRunning = false,
 }: {
   readonly item: SessionTranscriptMessage;
   readonly sourceMessageIndex?: number;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
   readonly hideThinking?: boolean;
   readonly collapseThinkingByDefault?: boolean;
+  readonly enableHtmlArtifacts?: boolean;
+  readonly sessionRunning?: boolean;
 }) {
   const t = useT();
   if (item.role === "user") {
@@ -134,7 +144,9 @@ function TimelineMessage({
           </div>
         </details>
       ) : null}
-      {item.text ? <MessageMarkdown text={item.text} /> : null}
+      {item.text ? (
+        <MessageMarkdown enableArtifacts={enableHtmlArtifacts} streaming={sessionRunning} text={item.text} />
+      ) : null}
       {canFork ? (
         <div className="timeline-item__actions">
           <button

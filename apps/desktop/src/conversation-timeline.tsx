@@ -39,6 +39,8 @@ interface ConversationTimelineProps {
   readonly onViewFileInDiff?: (path: string) => void;
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
   readonly hideThinking?: boolean;
+  readonly enableHtmlArtifacts?: boolean;
+  readonly sessionRunning?: boolean;
   readonly collapseThinkingByDefault?: boolean;
   readonly promptRailVisible?: boolean;
 }
@@ -59,6 +61,8 @@ export function ConversationTimeline({
   onViewFileInDiff,
   onForkFromMessage,
   hideThinking = false,
+  enableHtmlArtifacts = false,
+  sessionRunning = false,
   collapseThinkingByDefault = true,
   promptRailVisible = true,
 }: ConversationTimelineProps) {
@@ -278,6 +282,8 @@ export function ConversationTimeline({
           renderedMessageIndexById={renderedMessageIndexById}
           onForkFromMessage={onForkFromMessage}
           hideThinking={hideThinking}
+          enableHtmlArtifacts={enableHtmlArtifacts}
+          sessionRunning={sessionRunning}
           collapseThinkingByDefault={collapseThinkingByDefault}
         />
       ) : (
@@ -293,6 +299,8 @@ export function ConversationTimeline({
               sourceMessageIndex={renderedMessageIndexById.get(item.id)}
               onForkFromMessage={onForkFromMessage}
               hideThinking={hideThinking}
+            enableHtmlArtifacts={enableHtmlArtifacts}
+            sessionRunning={sessionRunning}
               collapseThinkingByDefault={collapseThinkingByDefault}
             />
           ))}
@@ -410,6 +418,8 @@ function VirtualizedTranscriptList({
   renderedMessageIndexById,
   onForkFromMessage,
   hideThinking,
+  enableHtmlArtifacts,
+  sessionRunning,
   collapseThinkingByDefault,
 }: {
   readonly displayItems: readonly DisplayTimelineItem[];
@@ -421,6 +431,8 @@ function VirtualizedTranscriptList({
   readonly onHeightChange: (id: string, height: number) => void;
   readonly hideThinking?: boolean;
   readonly collapseThinkingByDefault?: boolean;
+  readonly enableHtmlArtifacts?: boolean;
+  readonly sessionRunning?: boolean;
   readonly onToggleToolCall: (callId: string) => void;
   readonly onViewFileInDiff?: (path: string) => void;
   readonly renderedMessageIndexById: ReadonlyMap<string, number>;
@@ -551,6 +563,8 @@ function MeasuredTimelineItem({
   readonly onForkFromMessage?: (messageIndex: number, preview?: string) => void;
   readonly hideThinking?: boolean;
   readonly collapseThinkingByDefault?: boolean;
+  readonly enableHtmlArtifacts?: boolean;
+  readonly sessionRunning?: boolean;
 }) {
   const rowRef = useRef<HTMLDivElement | null>(null);
 

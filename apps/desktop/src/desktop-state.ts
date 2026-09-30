@@ -329,6 +329,8 @@ export interface DesktopAppState {
   readonly uiFontScale: number;
   /** When true, assistant thinking/reasoning content is not rendered in the timeline. */
   readonly hideThinking: boolean;
+  /** When true, assistant svg fenced blocks render as live sandboxed previews. */
+  readonly enableHtmlArtifacts: boolean;
   /** When true (and thinking shown), thinking blocks start collapsed. */
   readonly collapseThinkingByDefault: boolean;
   readonly startupDiagnostics: readonly StartupDiagnostic[];
@@ -384,6 +386,7 @@ export function createEmptyDesktopAppState(): DesktopAppState {
     enableTransparency: false,
     uiFontScale: 1,
     hideThinking: false,
+    enableHtmlArtifacts: true,
     collapseThinkingByDefault: true,
     startupDiagnostics: [],
     revision: 0,

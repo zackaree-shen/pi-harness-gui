@@ -1323,6 +1323,9 @@ app.whenReady().then(async () => {
   ipcMain.handle(desktopIpc.setHideThinking, async (_event, hide: boolean) => {
     return store.setHideThinking(hide);
   });
+  ipcMain.handle(desktopIpc.setEnableHtmlArtifacts, async (_event, enable: boolean) => {
+    return store.setEnableHtmlArtifacts(enable);
+  });
   ipcMain.handle(desktopIpc.setCollapseThinkingByDefault, async (_event, collapse: boolean) => {
     return store.setCollapseThinkingByDefault(collapse);
   });

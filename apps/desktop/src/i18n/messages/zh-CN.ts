@@ -160,6 +160,8 @@ export const zhCNMessages = {
       enableSkillCommandsDescription: "保持技能斜杠命令在输入框中可用。",
       terminalShell: "集成终端 Shell",
       terminalShellDescription: "留空以使用默认登录 Shell。",
+      enableHtmlArtifacts: "实时渲染 HTML 预览",
+      enableHtmlArtifactsDescription: "将助手输出中的 HTML/SVG 代码块在时间线内沙箱渲染（图表、SVG 等可视化）。",
       hideThinking: "隐藏思考内容",
       hideThinkingDescription: "不在对话时间线中显示模型的思考/推理过程。",
       collapseThinkingByDefault: "默认折叠思考",
@@ -384,6 +386,11 @@ export const zhCNMessages = {
 
   timeline: {
     thinking: "思考过程",
+    artifactPreview: "预览",
+    artifactCode: "代码",
+    artifactCopy: "复制代码",
+    artifactCopied: "已复制",
+    artifactRendering: "渲染中…",
     prompts: "提示词",
     promptsInThread: "本线程的提示词",
     loading: "正在加载记录…",

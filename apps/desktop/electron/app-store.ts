@@ -770,6 +770,21 @@ export class DesktopAppStore implements AppStoreInternals {
     return this.emit();
   }
 
+  async setEnableHtmlArtifacts(enable: boolean): Promise<DesktopAppState> {
+    await this.initialize();
+    if (this.state.enableHtmlArtifacts === enable) {
+      return structuredClone(this.state);
+    }
+    this.state = {
+      ...this.state,
+      enableHtmlArtifacts: enable,
+      lastError: undefined,
+      revision: this.state.revision + 1,
+    };
+    await this.persistUiState();
+    return structuredClone(this.state);
+  }
+
   async setCollapseThinkingByDefault(collapse: boolean): Promise<DesktopAppState> {
     await this.initialize();
     if (this.state.collapseThinkingByDefault === collapse) {
@@ -1285,6 +1300,7 @@ export class DesktopAppStore implements AppStoreInternals {
       enableTransparency: persisted.enableTransparency ?? this.state.enableTransparency,
       uiFontScale: persisted.uiFontScale ?? this.state.uiFontScale,
       hideThinking: persisted.hideThinking ?? this.state.hideThinking,
+      enableHtmlArtifacts: persisted.enableHtmlArtifacts ?? this.state.enableHtmlArtifacts,
       collapseThinkingByDefault: persisted.collapseThinkingByDefault ?? this.state.collapseThinkingByDefault,
       orchestrationChildren: persisted.orchestrationChildren ?? [],
     };
@@ -2727,6 +2743,7 @@ export class DesktopAppStore implements AppStoreInternals {
       enableTransparency: this.state.enableTransparency,
       uiFontScale: this.state.uiFontScale === 1 ? undefined : this.state.uiFontScale,
       hideThinking: this.state.hideThinking || undefined,
+      enableHtmlArtifacts: this.state.enableHtmlArtifacts === false ? false : undefined,
       collapseThinkingByDefault: this.state.collapseThinkingByDefault === false ? false : undefined,
       orchestrationChildren: orchestration.toPersistedOrchestrationChildren(this.state.orchestrationChildren),
     };

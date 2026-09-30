@@ -35,6 +35,7 @@ export interface PersistedUiState {
   readonly enableTransparency?: boolean;
   readonly uiFontScale?: number;
   readonly hideThinking?: boolean;
+  readonly enableHtmlArtifacts?: boolean;
   readonly collapseThinkingByDefault?: boolean;
   readonly themeMode?: ThemeMode;
   readonly themePresetId?: ThemePresetId;
@@ -92,6 +93,7 @@ export async function readPersistedUiState(uiStateFilePath: string): Promise<Leg
       enableTransparency: typeof candidate.enableTransparency === "boolean" ? candidate.enableTransparency : undefined,
       uiFontScale: toUiFontScale(candidate.uiFontScale),
       hideThinking: typeof candidate.hideThinking === "boolean" ? candidate.hideThinking : undefined,
+      enableHtmlArtifacts: typeof candidate.enableHtmlArtifacts === "boolean" ? candidate.enableHtmlArtifacts : undefined,
       collapseThinkingByDefault:
         typeof candidate.collapseThinkingByDefault === "boolean"
           ? candidate.collapseThinkingByDefault

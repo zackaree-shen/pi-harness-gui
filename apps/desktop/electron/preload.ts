@@ -228,6 +228,8 @@ contextBridge.exposeInMainWorld("piApp", {
     ipcRenderer.invoke(desktopIpc.setUiFontScale, scale) as Promise<DesktopAppState>,
   setHideThinking: (hide: boolean) =>
     ipcRenderer.invoke(desktopIpc.setHideThinking, hide) as Promise<DesktopAppState>,
+  setEnableHtmlArtifacts: (enable: boolean) =>
+    ipcRenderer.invoke(desktopIpc.setEnableHtmlArtifacts, enable) as Promise<DesktopAppState>,
   setCollapseThinkingByDefault: (collapse: boolean) =>
     ipcRenderer.invoke(desktopIpc.setCollapseThinkingByDefault, collapse) as Promise<DesktopAppState>,
   getPermissionMode: () => ipcRenderer.invoke(desktopIpc.getPermissionMode) as Promise<string>,
