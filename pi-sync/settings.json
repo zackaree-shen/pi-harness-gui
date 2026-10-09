@@ -1,0 +1,28 @@
+{
+  "defaultProvider": "glm",
+  "defaultModel": "glm-5.3",
+  "defaultThinkingLevel": "high",
+  "lastChangelogVersion": "1.1.0",
+  "theme": "high-contrast-dark",
+  "packages": [
+    "npm:pi-web-access",
+    "npm:context-mode",
+    "npm:@gotgenes/pi-permission-system",
+    "npm:superpowers-zh",
+    "npm:atlas-vision-mcp",
+    "npm:pi-markdown-preview",
+    "npm:@juanibiapina/pi-powerbar",
+    "npm:pi-subagents",
+    "npm:@quintinshaw/pi-dynamic-workflows",
+    "npm:pi-reasonix",
+    "npm:pi-title-renamer",
+    "npm:@zhushanwen/pi-ask-user",
+    "npm:pi-code-previews",
+    "npm:pi-image-tools",
+    "npm:@pi-archimedes/image-paste"
+  ],
+  "terminal": {
+    "showTerminalProgress": true
+  },
+  "showCacheMissNotices": true
+}
