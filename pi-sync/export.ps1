@@ -19,7 +19,7 @@ Write-Host "copied: agents, themes, settings.json, AGENTS.md, workflow-settings.
 # --- 2. models.json -> sanitized template (NEVER commit raw keys) ---
 # Provider name -> environment variable that holds the real key on each machine.
 # pi natively supports ${VAR} interpolation in apiKey fields.
-$keyMap = @{ 'deepseek' = 'DEEPSEEK_API_KEY'; 'glm' = 'GLM_API_KEY'; 'cc-switch-mini-max' = 'MINIMAX_API_KEY' }
+$keyMap = @{ 'deepseek' = 'DEEPSEEK_API_KEY'; 'glm' = 'GLM_API_KEY'; 'glm-vision' = 'GLM_API_KEY'; 'cc-switch-mini-max' = 'MINIMAX_API_KEY' }
 $modelsPath = Join-Path $agent 'models.json'
 if (Test-Path $modelsPath) {
     $m = Get-Content $modelsPath -Raw | ConvertFrom-Json

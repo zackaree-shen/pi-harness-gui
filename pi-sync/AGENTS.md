@@ -38,7 +38,7 @@ Error: Cannot find module '...\dist\bundle\chunks\openai-completions-XXXXXXXX.js
 
 当我在本会话（或应用户要求）修改了 `~/.pi/agent/` 下被 pi-sync 管理的配置时——即：`agents/*.md`（专家）、`settings.json`、`AGENTS.md`、`themes/*.json`、`workflow-settings.json`，以及 `models.json` 的结构性改动（新增/删除模型或提供商，不含密钥）——**不要只改本地就结束**，必须完成一轮同步：
 
-1. 在 `D:\LittleTools\pi-harness-gui` 执行 `powershell -NoProfile -ExecutionPolicy Bypass -File pi-sync/export.ps1`（本地 → 仓库，自动脱敏 models.json 并做泄密扫描；扫描失败必须停下修复，不许跳过）
+1. 在 pi-harness-gui 仓库根目录（本机 clone 路径，如 `C:\selfDIr\Tools\pi-harness-gui` 或 `D:\LittleTools\pi-harness-gui`）执行 `powershell -NoProfile -ExecutionPolicy Bypass -File pi-sync/export.ps1`（本地 → 仓库，自动脱敏 models.json 并做泄密扫描；扫描失败必须停下修复，不许跳过）
 2. `git fetch origin`，如有新提交用 `git pull --rebase --autostash`（保护仓库里用户未提交的 WIP）
 3. 只 `git add pi-sync`，绝不带入仓库里其他未提交改动
 4. `git commit -m "sync(pi-sync): <改了什么> [skip ci]"`（配置提交跳过 CI）
