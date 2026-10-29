@@ -6,7 +6,7 @@
                                        "baseUrl":  "https://api.deepseek.com",
                                        "models":  [
                                                       {
-                                                          "contextWindow":  131072,
+                                                          "contextWindow":  1000000,
                                                           "id":  "deepseek-v4-pro",
                                                           "input":  [
                                                                         "text"
@@ -92,7 +92,7 @@
                                                                           "image"
                                                                       ],
                                                             "reasoning":  false,
-                                                            "contextWindow":  131072,
+                                                            "contextWindow":  1000000,
                                                             "maxTokens":  8192,
                                                             "cost":  {
                                                                          "input":  0,
