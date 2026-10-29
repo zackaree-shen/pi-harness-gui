@@ -1,9 +1,9 @@
 {
   "defaultProvider": "glm",
-  "defaultModel": "glm-5.3",
+  "defaultModel": "glm-5.3-flash",
   "defaultThinkingLevel": "high",
-  "lastChangelogVersion": "1.1.0",
-  "theme": "high-contrast-dark",
+  "lastChangelogVersion": "1.4.0",
+  "theme": "homebrew-dark",
   "packages": [
     "npm:pi-web-access",
     "npm:context-mode",
