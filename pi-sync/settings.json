@@ -2,7 +2,7 @@
   "defaultProvider": "glm",
   "defaultModel": "glm-5.3-flash",
   "defaultThinkingLevel": "high",
-  "lastChangelogVersion": "1.4.0",
+  "lastChangelogVersion": "1.5.0",
   "theme": "homebrew-dark",
   "packages": [
     "npm:pi-web-access",
@@ -10,13 +10,11 @@
     "npm:@gotgenes/pi-permission-system",
     "npm:superpowers-zh",
     "npm:atlas-vision-mcp",
-    "npm:pi-markdown-preview",
     "npm:@juanibiapina/pi-powerbar",
     "npm:pi-subagents",
     "npm:@quintinshaw/pi-dynamic-workflows",
     "npm:pi-reasonix",
     "npm:pi-title-renamer",
-    "npm:@zhushanwen/pi-ask-user",
     "npm:pi-code-previews",
     "npm:pi-image-tools",
     "npm:@pi-archimedes/image-paste"
@@ -24,5 +22,11 @@
   "terminal": {
     "showTerminalProgress": true
   },
-  "showCacheMissNotices": true
+  "showCacheMissNotices": true,
+  "extensionChangelogVersions": {
+    "{\"source\":\"npm:pi-web-access\",\"scope\":\"user\"}": "0.46.0",
+    "{\"source\":\"npm:@gotgenes/pi-permission-system\",\"scope\":\"user\"}": "42.0.0",
+    "{\"source\":\"npm:pi-subagents\",\"scope\":\"user\"}": "0.84.0",
+    "{\"source\":\"npm:pi-image-tools\",\"scope\":\"user\"}": "1.4.0"
+  }
 }
